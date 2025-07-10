@@ -28,29 +28,30 @@ class KategoriController extends Controller
         return view('kategori.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        // 1. Validasi data yang masuk dari formulir
-        $request->validate([
-            'name' => [ // <-- Ubah menjadi array
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('kategoris', 'name') // <-- Gunakan Rule::unique
-            ],
-        ]);
-        // 2. Simpan data baru ke dalam tabel 'kategoris'
-        Kategori::create([
-            'name' => $request->name,
-        ]);
-        // 3. Kembali ke halaman daftar dengan pesan sukses
-        return redirect()->route('kategori.index')
-                         ->with('success', 'Kategori baru berhasil ditambahkan.');
+   public function store(Request $request)
+{
+    // Langkah 1: Validasi input dasar (tanpa aturan unique)
+    $request->validate([
+        'name' => 'required|string|max:255',
+    ]);
+
+    // Langkah 2: Pengecekan manual apakah nama kategori sudah ada
+    $existingKategori = Kategori::where('name', $request->name)->first();
+
+    // Langkah 3: Jika sudah ada, kembalikan dengan pesan eror
+    if ($existingKategori) {
+        return back()->withInput()->withErrors(['name' => 'Nama kategori ini sudah ada.']);
     }
 
+    // Langkah 4: Jika aman, baru simpan data ke database
+    Kategori::create([
+        'name' => $request->name,
+    ]);
+
+    // Langkah 5: Kembalikan ke halaman index dengan pesan sukses
+    return redirect()->route('kategori.index')
+                     ->with('success', 'Kategori berhasil ditambahkan.');
+}
     /**
      * Display the specified resource.
      */
