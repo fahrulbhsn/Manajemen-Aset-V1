@@ -13,9 +13,13 @@ class KategoriController extends Controller
      */
     public function index()
     {
-        // Mengambil semua data kategori dari database, diurutkan dari yang terbaru
-        $kategoris = Kategori::latest()->get();
-        // Mengirim data tersebut ke file view 'index.blade.php'
+        // Ambil kategori beserta jumlah aset yang statusnya 'Tersedia'
+        $kategoris = Kategori::withCount(['asets' => function ($query) {
+            $query->whereHas('status', function ($subQuery) {
+                $subQuery->where('name', 'Tersedia');
+        });
+        }])->latest()->get();
+
         return view('kategori.index', compact('kategoris'));
     }
 

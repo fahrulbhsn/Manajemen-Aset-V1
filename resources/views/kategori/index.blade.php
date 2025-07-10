@@ -25,18 +25,18 @@
                 <thead>
                     <tr>
                         <th>Nama Kategori</th>
-                        <th width="15%">Aksi</th>
+                        <th>Stok Tersedia</th> <th width="15%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($kategoris as $kategori)
                         <tr>
                             <td>{{ $kategori->name }}</td>
-                            <td>
+                            <td>{{ $kategori->asets_count }}</td> <td>
                                 <a href="{{ route('kategori.edit', $kategori->id) }}" class="btn btn-warning btn-circle btn-sm">
                                     <i class="fas fa-edit"></i>
-                                a>
-                                <form action="{{ route('kategori.destroy', $kategori->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin menghapus kategori ini?');">
+                                </a>
+                                <form action="{{ route('kategori.destroy', $kategori->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin ingin menghapus kategori ini?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-circle btn-sm">
@@ -47,8 +47,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="2" class="text-center">Belum ada data kategori.</td>
-                        </tr>
+                            <td colspan="3" class="text-center">Belum ada data kategori.</td> </tr>
                     @endforelse
                 </tbody>
             </table>

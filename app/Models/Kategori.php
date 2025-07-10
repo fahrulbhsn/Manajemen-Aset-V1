@@ -9,9 +9,12 @@ class Kategori extends Model
 {
     use HasFactory;
 
-    // TAMBAHKAN KODE DI BAWAH INI
-    protected $fillable = [
-        'name',
-    ];
-    // BATAS KODE TAMBAHAN
+    protected $fillable = ['name'];
+
+    // TAMBAHKAN FUNGSI INI
+    public function asets()
+    {
+        // Satu Kategori bisa dimiliki oleh banyak Aset
+        return $this->hasMany(Aset::class);
+    }
 }

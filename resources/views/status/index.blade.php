@@ -25,18 +25,18 @@
                 <thead>
                     <tr>
                         <th>Nama Status</th>
-                        <th width="15%">Aksi</th>
+                        <th>Total Stok</th> <th width="15%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($statuses as $status)
                         <tr>
                             <td>{{ $status->name }}</td>
-                            <td>
+                            <td>{{ $status->asets_count }}</td> <td>
                                 <a href="{{ route('status.edit', $status->id) }}" class="btn btn-warning btn-circle btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('status.destroy', $status->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin menghapus status ini?');">
+                                <form action="{{ route('status.destroy', $status->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin ingin menghapus status ini?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-circle btn-sm">
@@ -47,8 +47,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="2" class="text-center">Belum ada data status.</td>
-                        </tr>
+                            <td colspan="3" class="text-center">Belum ada data status.</td> </tr>
                     @endforelse
                 </tbody>
             </table>
