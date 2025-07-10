@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="form-row">
-                 <div class="form-group col-md-6">
+                   <div class="form-group col-md-6">
                     <label for="tanggal_beli">Tanggal Beli</label>
                     <input type="date" class="form-control" id="tanggal_beli" name="tanggal_beli" value="{{ old('tanggal_beli', $aset->tanggal_beli) }}" required>
                 </div>
@@ -56,6 +56,17 @@
                 <textarea class="form-control" id="detail" name="detail" rows="3">{{ old('detail', $aset->detail) }}</textarea>
             </div>
             
+            {{-- KODE BARU UNTUK FOTO ASET DIMULAI DI SINI --}}
+            <div class="form-group">
+                <label for="foto">Foto Aset</label>
+                <input type="file" class="form-control-file" id="foto" name="foto">
+                @if($aset->foto)
+                    <small class="form-text text-muted">Foto saat ini:</small>
+                    <img src="{{ asset('foto_aset/' . $aset->foto) }}" alt="{{ $aset->nama_aset }}" width="100" class="mt-2">
+                @endif
+            </div>
+            {{-- KODE BARU UNTUK FOTO ASET BERAKHIR DI SINI --}}
+
             <button type="submit" class="btn btn-primary">Update Aset</button>
         </form>
     </div>

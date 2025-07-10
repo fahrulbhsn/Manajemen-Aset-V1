@@ -10,8 +10,9 @@ class StatusController extends Controller
 {
     public function index()
     {
-        $statuses = Status::latest()->get();
-        return view('status.index', compact('statuses'));
+    // 'withCount('asets')' akan otomatis menghitung jumlah aset per status
+    $statuses = Status::withCount('asets')->latest()->get(); 
+    return view('status.index', compact('statuses'));
     }
 
     public function create()

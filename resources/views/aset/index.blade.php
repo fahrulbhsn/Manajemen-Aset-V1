@@ -45,8 +45,11 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                {{-- Nanti kita tampilkan foto di sini --}}
-                                <span class="text-muted">No Image</span>
+                                @if($aset->foto)
+                                    <img src="{{ asset('foto_aset/' . $aset->foto) }}" alt="{{ $aset->nama_aset }}" width="100">
+                                @else
+                                    <span class="text-muted">No Image</span>
+                                @endif
                             </td>
                             <td>{{ $aset->nama_aset }}</td>
                             <td>{{ $aset->kategori->name }}</td>

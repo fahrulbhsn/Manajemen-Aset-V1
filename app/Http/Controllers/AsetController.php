@@ -6,6 +6,7 @@ use App\Models\Aset;
 use Illuminate\Http\Request;
 use App\Models\Kategori;
 use App\Models\Status;
+use Illuminate\Support\Facades\File; // Import Facade File untuk menghapus file
 
 class AsetController extends Controller
 {
@@ -15,7 +16,7 @@ class AsetController extends Controller
     public function index()
     {
         // Ambil semua data aset, termasuk data relasinya (kategori & status)
-        $asets = Aset::with(['kategori', 'status'])->latest()->get();  
+        $asets = Aset::with(['kategori', 'status'])->latest()->get(); 
         return view('aset.index', compact('asets'));
     }
 
@@ -36,30 +37,30 @@ class AsetController extends Controller
     public function store(Request $request)
     {
         // Validasi data
-    $request->validate([
-        'nama_aset' => 'required|string|max:255',
-        'kategori_id' => 'required|exists:kategoris,id',
-        'status_id' => 'required|exists:statuses,id',
-        'tanggal_beli' => 'required|date',
-        'harga_beli' => 'required|integer',
-        'harga_jual' => 'required|integer',
-        'detail' => 'nullable|string',
-        'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
-    ]);
+        $request->validate([
+            'nama_aset' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'status_id' => 'required|exists:statuses,id',
+            'tanggal_beli' => 'required|date',
+            'harga_beli' => 'required|integer',
+            'harga_jual' => 'required|integer',
+            'detail' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
+        ]);
 
-    $data = $request->all();
+        $data = $request->all();
 
-    // **LOGIKA UNGGAH FOTO DIMULAI DI SINI**
-    if ($request->hasFile('foto')) {
-        $namaFile = time() . '.' . $request->foto->extension();
-        $request->foto->move(public_path('foto_aset'), $namaFile);
-        $data['foto'] = $namaFile;
-    }
-    // **LOGIKA UNGGAH FOTO SELESAI**
+        // LOGIKA UNGGAH FOTO DIMULAI DI SINI (untuk membuat aset baru)
+        if ($request->hasFile('foto')) {
+            $namaFile = time() . '.' . $request->foto->extension();
+            $request->foto->move(public_path('foto_aset'), $namaFile);
+            $data['foto'] = $namaFile;
+        }
+        // LOGIKA UNGGAH FOTO SELESAI
 
-    Aset::create($data);
+        Aset::create($data);
 
-    return redirect()->route('aset.index')->with('success', 'Aset baru berhasil ditambahkan.');
+        return redirect()->route('aset.index')->with('success', 'Aset baru berhasil ditambahkan.');
     }
 
     /**
@@ -67,7 +68,7 @@ class AsetController extends Controller
      */
     public function show(Aset $aset)
     {
-        //
+        // Method ini tidak digunakan dalam konteks ini, bisa ditambahkan logika view detail jika diperlukan
     }
 
     /**
@@ -77,7 +78,8 @@ class AsetController extends Controller
     {
         // Ambil data untuk dropdown
         $kategoris = Kategori::all();
-        $statuses = Status::all();
+        // Perbaiki baris ini untuk tidak menyertakan "Terjual"
+        $statuses = Status::where('name', '!=', 'Terjual')->get(); 
         return view('aset.edit', compact('aset', 'kategoris', 'statuses'));
     }
 
@@ -86,19 +88,50 @@ class AsetController extends Controller
      */
     public function update(Request $request, Aset $aset)
     {
-        // Validasi data (mirip dengan store)
+        // Validasi data
         $request->validate([
-        'nama_aset' => 'required|string|max:255',
-        'kategori_id' => 'required|exists:kategoris,id',
-        'status_id' => 'required|exists:statuses,id',
-        'tanggal_beli' => 'required|date',
-        'harga_beli' => 'required|integer',
-        'harga_jual' => 'required|integer',
-        'detail' => 'nullable|string',
+            'nama_aset' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'status_id' => 'required|exists:statuses,id',
+            'tanggal_beli' => 'required|date',
+            'harga_beli' => 'required|integer',
+            'harga_jual' => 'required|integer',
+            'detail' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar untuk update
         ]);
 
         $data = $request->all();
-        // (Logika update foto akan kita tambahkan nanti)
+
+        // LOGIKA CEK PERUBAHAN STATUS DAN UPDATE tanggal_update
+        // Jika status_id yang baru berbeda dengan status_id yang lama
+        if ($request->status_id != $aset->status_id) {
+            $data['tanggal_update'] = now(); // Set tanggal_update ke waktu saat ini
+        } else {
+            // Jika status tidak berubah, pastikan tanggal_update yang sudah ada tetap dipertahankan
+            // Laravel secara otomatis akan mempertahankan nilai jika tidak ada di $data,
+            // tapi ini untuk kejelasan dan mencegah potensi overwrite jika ada logika lain.
+            $data['tanggal_update'] = $aset->tanggal_update;
+        }
+
+
+        // LOGIKA UNTUK MENGGANTI/MEMPERBARUI FOTO DIMULAI DI SINI
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada dan file-nya benar-benar ada di server
+            if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
+                File::delete(public_path('foto_aset/' . $aset->foto));
+            }
+
+            // Unggah foto baru
+            $namaFile = time() . '.' . $request->foto->extension();
+            $request->foto->move(public_path('foto_aset'), $namaFile);
+            $data['foto'] = $namaFile;
+        } else {
+            // Jika tidak ada foto baru diunggah, pastikan foto lama tetap dipertahankan
+            // Ini penting karena $request->all() tidak akan menyertakan 'foto' jika tidak ada file baru
+            // dan kita tidak ingin menghapus foto yang sudah ada secara tidak sengaja.
+            $data['foto'] = $aset->foto; 
+        }
+        // LOGIKA UNTUK MENGGANTI/MEMPERBARUI FOTO SELESAI
 
         $aset->update($data);
 
@@ -110,8 +143,14 @@ class AsetController extends Controller
      */
     public function destroy(Aset $aset)
     {
-        //(Logika untuk hapus foto dari server akan kita tambahkan nanti)
-        $aset->delete();
+        // LOGIKA UNTUK HAPUS FOTO DARI SERVER DIMULAI DI SINI
+        // Periksa apakah aset memiliki foto dan file-nya ada di direktori public
+        if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
+            File::delete(public_path('foto_aset/' . $aset->foto)); // Hapus file foto dari server
+        }
+        // LOGIKA UNTUK HAPUS FOTO DARI SERVER SELESAI
+
+        $aset->delete(); // Hapus record aset dari database
         return redirect()->route('aset.index')->with('success', 'Aset berhasil dihapus.');
     }
 }
