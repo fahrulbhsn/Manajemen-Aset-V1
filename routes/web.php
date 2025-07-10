@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\AsetController;
+use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,6 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('kategori', KategoriController::class);
     Route::resource('status', StatusController::class);
     Route::resource('aset', AsetController::class);
+    Route::resource('transaksi', TransaksiController::class);
 });
 
 require __DIR__.'/auth.php';

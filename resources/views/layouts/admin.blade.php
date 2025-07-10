@@ -48,22 +48,28 @@
                     <span>Dashboard</span></a>
             </li>
             
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAset"
-                    aria-expanded="true" aria-controls="collapseAset">
-                    <i class="fas fa-fw fa-archive"></i>
-                    <span>Aset</span>
-                </a>
-                <div id="collapseAset" class="collapse" aria-labelledby="headingAset" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Manajemen Aset:</h6>
-                        <a class="collapse-item" href="{{ route('aset.index') }}">Daftar Aset</a>
-                        <a class="collapse-item" href="{{ route('kategori.index') }}">Kategori</a>
-                        <a class="collapse-item" href="{{ route('status.index') }}">Status</a>
-                    </div>
-                </div>
-            </li>
+<li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAset"
+            aria-expanded="true" aria-controls="collapseAset">
+            <i class="fas fa-fw fa-archive"></i>
+            <span>Aset</span>
+        </a>
+        <div id="collapseAset" class="collapse" aria-labelledby="headingAset" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Manajemen Aset:</h6>
+                <a class="collapse-item" href="{{ route('aset.index') }}">Daftar Aset</a>
+                <a class="collapse-item" href="{{ route('kategori.index') }}">Kategori</a>
+                <a class="collapse-item" href="{{ route('status.index') }}">Status</a>
+            </div>
+        </div>
+    </li>
 
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('transaksi.index') }}">
+            <i class="fas fa-fw fa-dollar-sign"></i>
+            <span>Transaksi</span>
+        </a>
+    </li>
             <!--Kategori-->
 <!--                <li class="nav-item">
                 <a class="nav-link" href="{{ route('kategori.index') }}">
