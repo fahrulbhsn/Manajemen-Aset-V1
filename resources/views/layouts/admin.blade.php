@@ -64,12 +64,21 @@
         </div>
     </li>
 
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('transaksi.index') }}">
-            <i class="fas fa-fw fa-dollar-sign"></i>
-            <span>Transaksi</span>
-        </a>
-    </li>
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTransaksi"
+        aria-expanded="true" aria-controls="collapseTransaksi">
+        <i class="fas fa-fw fa-dollar-sign"></i>
+        <span>Transaksi</span>
+    </a>
+    <div id="collapseTransaksi" class="collapse" aria-labelledby="headingTransaksi" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Manajemen Transaksi:</h6>
+            <a class="collapse-item" href="{{ route('transaksi.index') }}">Daftar Transaksi</a>
+            <a class="collapse-item" href="{{ route('laporan.penjualan') }}">Laporan Penjualan</a>
+            {{-- <a class="collapse-item" href="#">Laporan Pembelian</a> --}}
+        </div>
+    </div>
+</li>
             <!--Kategori-->
 <!--                <li class="nav-item">
                 <a class="nav-link" href="{{ route('kategori.index') }}">

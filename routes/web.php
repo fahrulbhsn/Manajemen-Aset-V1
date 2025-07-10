@@ -6,6 +6,7 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\AsetController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\LaporanController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('status', StatusController::class);
     Route::resource('aset', AsetController::class);
     Route::resource('transaksi', TransaksiController::class);
+    Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
 });
 
 require __DIR__.'/auth.php';
