@@ -47,15 +47,38 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
+            
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAset"
+                    aria-expanded="true" aria-controls="collapseAset">
+                    <i class="fas fa-fw fa-archive"></i>
+                    <span>Aset</span>
+                </a>
+                <div id="collapseAset" class="collapse" aria-labelledby="headingAset" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Manajemen Aset:</h6>
+                        <a class="collapse-item" href="{{ route('aset.index') }}">Daftar Aset</a>
+                        <a class="collapse-item" href="{{ route('kategori.index') }}">Kategori</a>
+                        <a class="collapse-item" href="{{ route('status.index') }}">Status</a>
+                    </div>
+                </div>
+            </li>
 
             <!--Kategori-->
-            <li class="nav-item">
-    <           <a class="nav-link" href="{{ route('kategori.index') }}">
+<!--                <li class="nav-item">
+                <a class="nav-link" href="{{ route('kategori.index') }}">
                     <i class="fas fa-fw fa-tags"></i>
                      <span>Kategori</span>
                 </a>
             </li>
-
+-->
+            <!--Status-->
+ <!--           <li class="nav-item">
+                <a class="nav-link" href="{{ route('status.index') }}">
+                    <i class="fas fa-fw fa-check-circle"></i>
+                    <span>Status</span>
+                </a>
+-->
             <!-- Divider -->
             <hr class="sidebar-divider">
 

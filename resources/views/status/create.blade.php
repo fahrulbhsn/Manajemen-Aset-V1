@@ -2,17 +2,17 @@
 
 @section('content')
 
-<h1 class="h3 mb-4 text-gray-800">{{ __('Tambah Kategori Baru') }}</h1>
+<h1 class="h3 mb-4 text-gray-800">{{ __('Tambah Status Baru') }}</h1>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Formulir Tambah Kategori</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Formulir Tambah Status</h6>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ route('kategori.store') }}">
+        <form method="POST" action="{{ route('status.store') }}">
             @csrf
             <div class="form-group">
-                <label for="name">Nama Kategori</label>
+                <label for="name">Nama Status</label>
                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required autofocus>
                 @error('name')
                     <div class="invalid-feedback">
