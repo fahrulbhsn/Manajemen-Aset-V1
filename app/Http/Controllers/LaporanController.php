@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TransaksiExport;
 
 class LaporanController extends Controller
 {
@@ -12,13 +14,66 @@ class LaporanController extends Controller
      */
     public function penjualan(Request $request)
     {
-        // Ambil semua data transaksi untuk dihitung dan ditampilkan
-        $transaksis = Transaksi::latest()->get();
+    // Ambil tanggal awal dan akhir dari request, jika ada
+    $tanggal_awal = $request->input('tanggal_awal');
+    $tanggal_akhir = $request->input('tanggal_akhir');
 
-        // Hitung total pendapatan dari semua transaksi
+    // Mulai query ke tabel transaksi
+    $query = Transaksi::query();
+
+    // Jika ada input tanggal, filter datanya
+    if ($tanggal_awal && $tanggal_akhir) {
+        $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+    }
+
+    // Ambil data yang sudah difilter
+    $transaksis = $query->latest()->get();
+
+    // Hitung total pendapatan HANYA dari data yang sudah difilter
+    $totalPendapatan = $transaksis->sum('harga_jual_akhir');
+
+    // Kirim data ke view
+    return view('laporan.penjualan', compact('transaksis', 'totalPendapatan'));
+    }
+
+    /**
+     * Cetak laporan penjualan ke PDF.
+     */
+    public function cetak_pdf(Request $request)
+    {
+        // Logikanya sama persis dengan fungsi penjualan untuk mengambil data
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+
+        $query = Transaksi::query();
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        }
+        $transaksis = $query->latest()->get();
         $totalPendapatan = $transaksis->sum('harga_jual_akhir');
 
-        // Kirim data transaksi dan total pendapatan ke view
-        return view('laporan.penjualan', compact('transaksis', 'totalPendapatan'));
+        // Membuat PDF
+        $pdf = \PDF::loadView('laporan.pdf', compact('transaksis', 'totalPendapatan', 'tanggal_awal', 'tanggal_akhir'));
+
+        // Mengunduh PDF dengan nama file dinamis
+        return $pdf->download('laporan-penjualan.pdf');
+    }
+    /**
+     * Cetak laporan penjualan ke Excel.
+     */
+    public function cetak_excel(Request $request)
+    {
+        // Logika untuk mengambil data (sama persis seperti sebelumnya)
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+
+        $query = Transaksi::query();
+        if ($tanggal_awal && $tanggal_akhir) {
+        $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        }
+        $transaksis = $query->latest()->get();
+
+        // Mengunduh file Excel
+        return Excel::download(new TransaksiExport($transaksis), 'laporan-penjualan.xlsx');
     }
 }

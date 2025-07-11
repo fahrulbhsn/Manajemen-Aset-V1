@@ -5,6 +5,33 @@
 <h1 class="h3 mb-2 text-gray-800">Laporan Penjualan</h1>
 <p class="mb-4">Ringkasan semua aktivitas penjualan yang tercatat dalam sistem.</p>
 
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form action="{{ route('laporan.penjualan') }}" method="GET">
+            <div class="form-row align-items-end">
+                <div class="form-group col-md-5">
+                    <label for="tanggal_awal">Tanggal Awal</label>
+                    <input type="date" class="form-control" id="tanggal_awal" name="tanggal_awal" value="{{ request('tanggal_awal') }}">
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="tanggal_akhir">Tanggal Akhir</label>
+                    <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}">
+                </div>
+                <div class="form-group col-md-2">
+                    <button type="submit" class="btn btn-primary btn-block">Filter</button>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <a href="{{ route('laporan.cetak_pdf', request()->query()) }}" class="btn btn-success btn-block" target="_blank">Ekspor PDF</a>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <a href="{{ route('laporan.cetak_excel', request()->query()) }}" class="btn btn-success btn-block">Ekspor Excel</a>
+                </div>
+        </form>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">

@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('aset', AsetController::class);
     Route::resource('transaksi', TransaksiController::class);
     Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
+    Route::get('/laporan/penjualan/pdf', [LaporanController::class, 'cetak_pdf'])->name('laporan.cetak_pdf');
+    Route::get('/laporan/penjualan/excel', [LaporanController::class, 'cetak_excel'])->name('laporan.cetak_excel');
 });
 
 require __DIR__.'/auth.php';
