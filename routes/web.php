@@ -7,6 +7,7 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\AsetController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,6 +28,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
     Route::get('/laporan/penjualan/pdf', [LaporanController::class, 'cetak_pdf'])->name('laporan.cetak_pdf');
     Route::get('/laporan/penjualan/excel', [LaporanController::class, 'cetak_excel'])->name('laporan.cetak_excel');
+    // Rute Khusus Admin
+    Route::middleware(['auth', 'admin'])->group(function () {
+    Route::resource('users', UserController::class);
+    });
 });
 
 require __DIR__.'/auth.php';
