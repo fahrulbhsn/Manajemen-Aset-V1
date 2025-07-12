@@ -25,14 +25,21 @@
                 <thead>
                     <tr>
                         <th>Nama Status</th>
-                        <th>Total Stok</th> <th width="15%">Aksi</th>
+                        <th>Total Stok</th>
+                        <th width="15%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($statuses as $status)
                         <tr>
                             <td>{{ $status->name }}</td>
-                            <td>{{ $status->asets_count }}</td> <td>
+                            {{-- Menambahkan tautan interaktif pada Total Stok --}}
+                            <td>
+                                <a href="{{ route('aset.index', ['status_id' => $status->id]) }}">
+                                    {{ $status->asets_count }}
+                                </a>
+                            </td>
+                            <td>
                                 <a href="{{ route('status.edit', $status->id) }}" class="btn btn-warning btn-circle btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -47,7 +54,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center">Belum ada data status.</td> </tr>
+                            <td colspan="3" class="text-center">Belum ada data status.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>

@@ -3,20 +3,41 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aset;
-use Illuminate\Http\Request;
 use App\Models\Kategori;
 use App\Models\Status;
-use Illuminate\Support\Facades\File; // Import Facade File untuk menghapus file
+use Illuminate\Http\Request; // Pastikan ini ada
+use Illuminate\Support\Facades\File;
 
 class AsetController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request) // <-- PERBAIKAN ADA DI SINI
     {
-        // Ambil semua data aset, termasuk data relasinya (kategori & status)
-        $asets = Aset::with(['kategori', 'status'])->latest()->get(); 
+        // Mulai query ke tabel aset
+        $query = Aset::with(['kategori', 'status']);
+
+        // Cek jika ada filter status_id dari URL
+        if ($request->has('status_id')) {
+            $query->where('status_id', $request->status_id);
+        }
+
+        // Cek jika ada filter kategori_id dari URL
+        if ($request->has('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        // Cek jika ada filter status_name dari URL (khusus untuk stok tersedia di halaman kategori)
+        if ($request->has('status_name')) {
+            $query->whereHas('status', function($q) use ($request) {
+                $q->where('name', $request->status_name);
+            });
+        }
+
+        // Ambil data yang sudah difilter, urutkan dari yang terbaru
+        $asets = $query->latest()->get();
+
         return view('aset.index', compact('asets'));
     }
 
@@ -100,23 +121,16 @@ class AsetController extends Controller
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar untuk update
         ]);
 
-        $data = $request->all();
+        $data = $request->except('foto');
 
         // LOGIKA CEK PERUBAHAN STATUS DAN UPDATE tanggal_update
-        // Jika status_id yang baru berbeda dengan status_id yang lama
         if ($request->status_id != $aset->status_id) {
-            $data['tanggal_update'] = now(); // Set tanggal_update ke waktu saat ini
-        } else {
-            // Jika status tidak berubah, pastikan tanggal_update yang sudah ada tetap dipertahankan
-            // Laravel secara otomatis akan mempertahankan nilai jika tidak ada di $data,
-            // tapi ini untuk kejelasan dan mencegah potensi overwrite jika ada logika lain.
-            $data['tanggal_update'] = $aset->tanggal_update;
+            $data['tanggal_update'] = now();
         }
 
-
-        // LOGIKA UNTUK MENGGANTI/MEMPERBARUI FOTO DIMULAI DI SINI
+        // LOGIKA UNTUK MENGGANTI/MEMPERBARUI FOTO
         if ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada dan file-nya benar-benar ada di server
+            // Hapus foto lama jika ada
             if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
                 File::delete(public_path('foto_aset/' . $aset->foto));
             }
@@ -125,13 +139,7 @@ class AsetController extends Controller
             $namaFile = time() . '.' . $request->foto->extension();
             $request->foto->move(public_path('foto_aset'), $namaFile);
             $data['foto'] = $namaFile;
-        } else {
-            // Jika tidak ada foto baru diunggah, pastikan foto lama tetap dipertahankan
-            // Ini penting karena $request->all() tidak akan menyertakan 'foto' jika tidak ada file baru
-            // dan kita tidak ingin menghapus foto yang sudah ada secara tidak sengaja.
-            $data['foto'] = $aset->foto; 
         }
-        // LOGIKA UNTUK MENGGANTI/MEMPERBARUI FOTO SELESAI
 
         $aset->update($data);
 
@@ -141,25 +149,19 @@ class AsetController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-/**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Aset $aset)
     {
-        // Langkah 1: Hapus semua transaksi yang terkait dengan aset ini.
-        // Fungsi transaksis() adalah yang baru saja kita buat di Model Aset.
+        // Hapus transaksi terkait
         $aset->transaksis()->delete();
 
-        // Langkah 2: Hapus file foto dari server jika ada.
-        if ($aset->foto && file_exists(public_path('foto_aset/' . $aset->foto))) {
-            unlink(public_path('foto_aset/' . $aset->foto));
+        // Hapus foto dari server
+        if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
+            File::delete(public_path('foto_aset/' . $aset->foto));
         }
 
-        // Langkah 3: Setelah semua yang terkait dengannya dihapus, baru hapus asetnya.
+        // Hapus aset
         $aset->delete();
 
-        // Langkah 4: Kembalikan ke halaman daftar dengan pesan sukses.
-        return redirect()->route('aset.index')
-                         ->with('success', 'Aset dan semua riwayat transaksinya berhasil dihapus.');
+        return redirect()->route('aset.index')->with('success', 'Aset dan semua riwayat transaksinya berhasil dihapus.');
     }
-}
+}   

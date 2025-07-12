@@ -25,14 +25,21 @@
                 <thead>
                     <tr>
                         <th>Nama Kategori</th>
-                        <th>Stok Tersedia</th> <th width="15%">Aksi</th>
+                        <th>Stok Tersedia</th>
+                        <th width="15%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($kategoris as $kategori)
                         <tr>
                             <td>{{ $kategori->name }}</td>
-                            <td>{{ $kategori->asets_count }}</td> <td>
+                            {{-- Menambahkan tautan interaktif pada Stok Tersedia untuk memfilter aset --}}
+                            <td>
+                                <a href="{{ route('aset.index', ['kategori_id' => $kategori->id, 'status_name' => 'Tersedia']) }}">
+                                    {{ $kategori->asets_count }}
+                                </a>
+                            </td>
+                            <td>
                                 <a href="{{ route('kategori.edit', $kategori->id) }}" class="btn btn-warning btn-circle btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -47,7 +54,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center">Belum ada data kategori.</td> </tr>
+                            <td colspan="3" class="text-center">Belum ada data kategori.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
