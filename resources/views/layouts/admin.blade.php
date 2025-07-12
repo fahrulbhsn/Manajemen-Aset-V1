@@ -74,6 +74,8 @@
                         <h6 class="collapse-header">Manajemen Transaksi:</h6>
                         <a class="collapse-item" href="{{ route('transaksi.index') }}">Daftar Transaksi</a>
                         <a class="collapse-item" href="{{ route('laporan.penjualan') }}">Laporan Penjualan</a>
+                        {{-- Menambahkan link Laporan Pembelian di bawah Laporan Penjualan --}}
+                        <a class="collapse-item" href="{{ route('laporan.pembelian') }}">Laporan Pembelian</a>
                     </div>
                 </div>
             </li>

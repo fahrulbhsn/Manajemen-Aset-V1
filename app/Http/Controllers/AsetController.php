@@ -141,16 +141,25 @@ class AsetController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+/**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Aset $aset)
     {
-        // LOGIKA UNTUK HAPUS FOTO DARI SERVER DIMULAI DI SINI
-        // Periksa apakah aset memiliki foto dan file-nya ada di direktori public
-        if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
-            File::delete(public_path('foto_aset/' . $aset->foto)); // Hapus file foto dari server
-        }
-        // LOGIKA UNTUK HAPUS FOTO DARI SERVER SELESAI
+        // Langkah 1: Hapus semua transaksi yang terkait dengan aset ini.
+        // Fungsi transaksis() adalah yang baru saja kita buat di Model Aset.
+        $aset->transaksis()->delete();
 
-        $aset->delete(); // Hapus record aset dari database
-        return redirect()->route('aset.index')->with('success', 'Aset berhasil dihapus.');
+        // Langkah 2: Hapus file foto dari server jika ada.
+        if ($aset->foto && file_exists(public_path('foto_aset/' . $aset->foto))) {
+            unlink(public_path('foto_aset/' . $aset->foto));
+        }
+
+        // Langkah 3: Setelah semua yang terkait dengannya dihapus, baru hapus asetnya.
+        $aset->delete();
+
+        // Langkah 4: Kembalikan ke halaman daftar dengan pesan sukses.
+        return redirect()->route('aset.index')
+                         ->with('success', 'Aset dan semua riwayat transaksinya berhasil dihapus.');
     }
 }

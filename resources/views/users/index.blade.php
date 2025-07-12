@@ -8,8 +8,7 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         {{-- Tombol Tambah User akan kita buat nanti --}}
-        <a href="#" class="btn btn-primary btn-icon-split">
-            <span class="text">Tambah User Baru</span>
+        <a href="{{ route('users.create') }}" class="btn btn-primary">Tambah User Baru</span>
         </a>
     </div>
     <div class="card-body">
@@ -36,10 +35,17 @@
                                 @endif
                             </td>
                             <td>
-                                {{-- Tombol Aksi akan kita buat nanti --}}
-                                <a href="#" class="btn btn-warning btn-circle btn-sm">
+                                {{-- Tombol Aksi untuk Edit dan Hapus User --}}
+                                <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning btn-circle btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin ingin menghapus user ini?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-circle btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @empty

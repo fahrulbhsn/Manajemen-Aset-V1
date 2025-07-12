@@ -23,4 +23,9 @@ class Aset extends Model
     {
         return $this->belongsTo(Status::class);
     }
+
+    public function transaksis()
+    {
+    return $this->hasMany(Transaksi::class);
+    }
 }

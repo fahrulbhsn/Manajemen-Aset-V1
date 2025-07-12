@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
     Route::get('/laporan/penjualan/pdf', [LaporanController::class, 'cetak_pdf'])->name('laporan.cetak_pdf');
     Route::get('/laporan/penjualan/excel', [LaporanController::class, 'cetak_excel'])->name('laporan.cetak_excel');
+    Route::get('/laporan/pembelian', [LaporanController::class, 'pembelian'])->name('laporan.pembelian');
     // Rute Khusus Admin
     Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('users', UserController::class);

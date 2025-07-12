@@ -6,6 +6,7 @@ use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransaksiExport;
+use App\Models\Aset;
 
 class LaporanController extends Controller
 {
@@ -75,5 +76,29 @@ class LaporanController extends Controller
 
         // Mengunduh file Excel
         return Excel::download(new TransaksiExport($transaksis), 'laporan-penjualan.xlsx');
+    }
+
+        public function pembelian(Request $request)
+    {
+        // Ambil tanggal awal dan akhir dari filter, jika ada
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+
+        // Mulai query ke tabel aset
+        $query = Aset::query();
+
+        // Jika ada input tanggal, filter berdasarkan tanggal_beli
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_beli', [$tanggal_awal, $tanggal_akhir]);
+        }
+
+        // Ambil data aset yang sudah difilter
+        $asets = $query->latest()->get();
+
+        // Hitung total pengeluaran dari harga beli aset yang difilter
+        $totalPengeluaran = $asets->sum('harga_beli');
+
+        // Kirim data ke view
+        return view('laporan.pembelian', compact('asets', 'totalPengeluaran'));
     }
 }
