@@ -20,6 +20,12 @@ class KategoriController extends Controller
     return view('kategori.index', compact('kategoris'));
     }
 
+       public function create()
+    {
+        // Hanya menampilkan halaman formulir tambah data
+        return view('kategori.create');
+    }
+
    public function store(Request $request)
     {
         // Langkah 1: Validasi input dasar (tanpa aturan unique)
