@@ -9,7 +9,8 @@ class Transaksi extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id']; // Izinkan semua kolom diisi kecuali ID
+    // Izinkan semua kolom untuk diisi secara massal kecuali ID
+    protected $guarded = ['id'];
 
     // Relasi: Satu transaksi milik satu Aset
     public function aset()

@@ -39,38 +39,40 @@ class TransaksiController extends Controller
      */
     public function store(Request $request)
     {
-        // Logika untuk menyimpan transaksi akan kita isi di langkah berikutnya
-            // 1. Validasi data yang masuk
-            $request->validate([
-                'aset_id' => 'required|exists:asets,id',
-                'nama_pembeli' => 'required|string|max:255',
-                'kontak_pembeli' => 'required|string|max:255',
-                'harga_jual_akhir' => 'required|integer',
-                'tanggal_jual' => 'required|date',
-            ]);
+    // 1. Validasi data yang masuk, termasuk metode_pembayaran
+    $request->validate([
+        'aset_id' => 'required|exists:asets,id',
+        'nama_pembeli' => 'required|string|max:255',
+        'kontak_pembeli' => 'required|string|max:255',
+        'harga_jual_akhir' => 'required|integer',
+        'tanggal_jual' => 'required|date',
+        'metode_pembayaran' => 'required|string|in:Tunai,Transfer Bank,QRIS', // Validasi baru
+    ]);
 
-            // 2. Simpan data transaksi baru
-            Transaksi::create([
-                'aset_id' => $request->aset_id,
-                'user_id' => Auth::id(), // Mengambil ID user yang sedang login
-                'nama_pembeli' => $request->nama_pembeli,
-                'kontak_pembeli' => $request->kontak_pembeli,
-                'harga_jual_akhir' => $request->harga_jual_akhir,
-                'tanggal_jual' => $request->tanggal_jual,
-            ]);
+    // 2. Simpan data transaksi baru, termasuk metode_pembayaran
+    Transaksi::create([
+        'aset_id' => $request->aset_id,
+        'user_id' => Auth::id(),
+        'nama_pembeli' => $request->nama_pembeli,
+        'kontak_pembeli' => $request->kontak_pembeli,
+        'harga_jual_akhir' => $request->harga_jual_akhir,
+        'tanggal_jual' => $request->tanggal_jual,
+        'metode_pembayaran' => $request->metode_pembayaran, // <-- Data baru ditambahkan di sini
+    ]);
 
-                // 3. (Langkah Otomatisasi) Update status aset yang terjual
-                $aset = Aset::find($request->aset_id);
-                $statusTerjual = Status::where('name', 'Terjual')->first();
+    // 3. Update status aset yang terjual
+    $aset = Aset::find($request->aset_id);
+    $statusTerjual = Status::where('name', 'Terjual')->first();
 
-                if ($aset && $statusTerjual) {
-                    $aset->status_id = $statusTerjual->id;
-                    $aset->tanggal_update = now();
-                    $aset->save();
-                }
+    if ($aset && $statusTerjual) {
+        $aset->status_id = $statusTerjual->id;
+        $aset->tanggal_update = now();
+        $aset->save();
+    }
 
-                // 4. Redirect ke halaman index dengan pesan sukses
-                return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil ditambahkan.');
+    // 4. Kembali ke halaman daftar dengan pesan sukses
+    return redirect()->route('transaksi.index')
+                     ->with('success', 'Transaksi berhasil dicatat.');
     }
 
     /**
