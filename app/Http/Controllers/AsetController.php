@@ -13,32 +13,43 @@ class AsetController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request) // <-- PERBAIKAN ADA DI SINI
+    public function index(Request $request)
     {
-        // Mulai query ke tabel aset
+        // Ambil kata kunci pencarian dari URL, jika ada.
+        $search = $request->input('search');
+
+        // Memulai query ke tabel aset, selalu sertakan data relasi.
         $query = Aset::with(['kategori', 'status']);
 
-        // Cek jika ada filter status_id dari URL
+        // --- LOGIKA FILTER DIMULAI DI SINI ---
+
+        // Jika ada filter pencarian
+        if ($search) {
+        $query->where('nama_aset', 'like', '%' . $search . '%');
+        }
+
+        // Jika ada filter status_id dari URL (dari halaman Status)
         if ($request->has('status_id')) {
-            $query->where('status_id', $request->status_id);
+        $query->where('status_id', $request->status_id);
         }
 
-        // Cek jika ada filter kategori_id dari URL
+        // Jika ada filter kategori_id dari URL (dari halaman Kategori)
         if ($request->has('kategori_id')) {
-            $query->where('kategori_id', $request->kategori_id);
-        }
+        $query->where('kategori_id', $request->kategori_id);
 
-        // Cek jika ada filter status_name dari URL (khusus untuk stok tersedia di halaman kategori)
-        if ($request->has('status_name')) {
-            $query->whereHas('status', function($q) use ($request) {
-                $q->where('name', $request->status_name);
-            });
-        }
+        // Khusus untuk Kategori, kita juga pastikan statusnya "Tersedia"
+        $query->whereHas('status', function($q) {
+            $q->where('name', 'Tersedia');
+        });
+    }
 
-        // Ambil data yang sudah difilter, urutkan dari yang terbaru
-        $asets = $query->latest()->get();
+    // --- AKHIR LOGIKA FILTER ---
 
-        return view('aset.index', compact('asets'));
+    // Mengurutkan berdasarkan ID dari yang terbesar dan membaginya per halaman.
+    $asets = $query->orderBy('id', 'desc')->paginate(10); 
+
+    // Mengirim data ke view.
+    return view('aset.index', compact('asets', 'search')); 
     }
 
     /**

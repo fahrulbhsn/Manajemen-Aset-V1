@@ -33,20 +33,21 @@
                     @forelse ($statuses as $status)
                         <tr>
                             <td>{{ $status->name }}</td>
-                            {{-- Menambahkan tautan interaktif pada Total Stok --}}
+                            {{-- Menampilkan Total Stok tanpa tautan, hanya angkanya. --}}
+                            {{-- Pastikan di StatusController Anda menggunakan withCount('asets') untuk $status->asets_count. --}}
+                            <td>{{ $status->asets_count }}</td>
+                            {{-- Tombol Aksi: Lihat Aset, Edit Status, Hapus Status --}}
                             <td>
-                                <a href="{{ route('aset.index', ['status_id' => $status->id]) }}">
-                                    {{ $status->asets_count }}
+                                <a href="{{ route('aset.index', ['status_id' => $status->id]) }}" class="btn btn-info btn-circle btn-sm" title="Lihat Aset">
+                                    <i class="fas fa-eye"></i>
                                 </a>
-                            </td>
-                            <td>
-                                <a href="{{ route('status.edit', $status->id) }}" class="btn btn-warning btn-circle btn-sm">
+                                <a href="{{ route('status.edit', $status->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit Status">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('status.destroy', $status->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin ingin menghapus status ini?');">
+                                <form action="{{ route('status.destroy', $status->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-circle btn-sm">
+                                    <button type="submit" class="btn btn-danger btn-circle btn-sm" title="Hapus Status">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
