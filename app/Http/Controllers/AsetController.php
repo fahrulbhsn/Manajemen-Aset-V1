@@ -89,7 +89,8 @@ class AsetController extends Controller
      */
     public function show(Aset $aset)
     {
-        // Method ini tidak digunakan dalam konteks ini, bisa ditambahkan logika view detail jika diperlukan
+        // Mengirim data aset yang spesifik ke halaman view 'aset.show'
+        return view('aset.show', compact('aset'));
     }
 
     /**

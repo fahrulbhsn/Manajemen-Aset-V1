@@ -59,8 +59,9 @@
                             <td>{{ \Carbon\Carbon::parse($aset->tanggal_beli)->format('d-m-Y') }}</td>
                             <td>{{ $aset->tanggal_update ? \Carbon\Carbon::parse($aset->tanggal_update)->format('d-m-Y') : '-' }}</td>
                             <td>
-                                <a href="#" class="btn btn-info btn-circle btn-sm">
-                                    <i class="fas fa-eye"></i> </a>
+                                <a href="{{ route('aset.show', $aset->id) }}" class="btn btn-info btn-circle btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                                 <a href="{{ route('aset.edit', $aset->id) }}" class="btn btn-warning btn-circle btn-sm">
                                     <i class="fas fa-edit"></i> </a>
                                 <form action="{{ route('aset.destroy', $aset->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin menghapus aset ini?');">
