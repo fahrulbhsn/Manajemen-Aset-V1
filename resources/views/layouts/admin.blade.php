@@ -80,18 +80,22 @@
                 </div>
             </li>
 
-            <hr class="sidebar-divider">
-            
-            <div class="sidebar-heading">
-                Admin
-            </div>
+            {{-- Bagian 'Admin' dan 'Manajemen User' sekarang ditampilkan berdasarkan role pengguna --}}
+            @if(Auth::user()->role == 'admin')
+                <hr class="sidebar-divider">
 
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('users.index') }}">
-                    <i class="fas fa-fw fa-users"></i>
-                    <span>Manajemen User</span>
-                </a>
-            </li>
+                <div class="sidebar-heading">
+                    Admin
+                </div>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('users.index') }}">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Manajemen User</span>
+                    </a>
+                </li>
+            @endif
+            {{-- Akhir dari bagian yang diminta --}}
             
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -135,7 +139,7 @@
                 <div class="container-fluid">
                     @yield('content')
                 </div>
-                </div>
+                </div> {{-- Penutup div id="content" --}}
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
@@ -143,8 +147,8 @@
                     </div>
                 </div>
             </footer>
-            </div>
-        </div>
+            </div> {{-- Penutup div id="content-wrapper" --}}
+        </div> {{-- Penutup div id="wrapper" --}}
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>

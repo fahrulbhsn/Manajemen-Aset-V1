@@ -54,21 +54,35 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => 'required|string|in:admin,editor',
-            'password' => 'nullable|string|min:8|confirmed', // Password tidak wajib diisi saat edit
-        ]);
+            // 1. Validasi data yang masuk
+    $request->validate([
+        'name' => 'required|string|max:255',
+        // Pastikan validasi email mengabaikan email user saat ini
+        'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+        // Peran harus salah satu dari 'admin' atau 'editor'
+        'role' => 'required|string|in:admin,editor',
+        // Password tidak wajib diisi (nullable) saat edit
+        'password' => 'nullable|string|min:8|confirmed',
+    ]);
 
-        $data = $request->except('password');
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
-        }
+    // 2. Siapkan data untuk diupdate
+    $data = [
+        'name' => $request->name,
+        'email' => $request->email,
+        'role' => $request->role, // <-- INI BAGIAN KUNCI YANG DIPERBAIKI
+    ];
 
-        $user->update($data);
+    // 3. Hanya update password jika kolomnya diisi
+    if ($request->filled('password')) {
+        $data['password'] = Hash::make($request->password);
+    }
 
-        return redirect()->route('users.index')->with('success', 'Data user berhasil diperbarui.');
+    // 4. Lakukan update ke database
+    $user->update($data);
+
+    // 5. Kembali ke halaman daftar dengan pesan sukses
+    return redirect()->route('users.index')->with('success', 'Data user berhasil diperbarui.');
+
     }
 
     /**
