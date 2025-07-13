@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator; // <-- PASTIKAN BARIS INI ADA
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+    // Secara paksa memberitahu Laravel untuk menggunakan view kita
+    Paginator::defaultView('vendor.pagination.bootstrap-4');
+    Paginator::defaultSimpleView('vendor.pagination.bootstrap-4');
     }
 }
