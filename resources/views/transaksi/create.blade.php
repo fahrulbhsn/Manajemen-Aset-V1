@@ -12,13 +12,9 @@
             {{-- Bagian Pilih Aset --}}
             <div class="form-group">
                 <label for="aset_id">Pilih Aset yang akan Dijual</label>
-                <select id="aset_id" class="form-control" name="aset_id" required>
-                    <option selected disabled>Pilih Aset...</option>
-                    @foreach($asets as $aset)
-                        <option value="{{ $aset->id }}">
-                            {{ $aset->nama_aset }} (Harga: Rp {{ number_format($aset->harga_jual, 0, ',', '.') }})
-                        </option>
-                    @endforeach
+                {{-- Ajax search --}}
+                <select id="select-aset" class="form-control" name="aset_id" required>
+                    {{-- Biarkan kosong, akan diisi oleh AJAX --}}
                 </select>
                 {{-- Tambahkan pesan error validasi jika ada --}}
                 @error('aset_id')
@@ -89,3 +85,25 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#select-aset').select2({
+            placeholder: 'Ketik nama aset...',
+            ajax: {
+                url: "{{ route('aset.search') }}",
+                dataType: 'json',
+                delay: 250, // Jeda 250 milidetik sebelum mengirim request
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 3 // Minimal 3 karakter baru mencari
+        });
+    });
+</script>
+@endpush

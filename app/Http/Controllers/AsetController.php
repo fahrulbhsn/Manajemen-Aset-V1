@@ -13,76 +13,104 @@ class AsetController extends Controller
     /**
      * Display a listing of the resource.
      */
-public function index(Request $request)
-{
-    // Mengambil semua parameter dari URL
-    $search = $request->input('search');
-    $sort = $request->input('sort');
-    $direction = $request->input('direction', 'asc');
-    $kategori_id = $request->input('kategori_id');
-    $status_id = $request->input('status_id');
-    $status_name = $request->input('status_name');
+    public function index(Request $request)
+    {
+        // Mengambil semua parameter dari URL
+        $search = $request->input('search');
+        $sort = $request->input('sort');
+        $direction = $request->input('direction', 'asc');
+        $kategori_id = $request->input('kategori_id');
+        $status_id = $request->input('status_id');
+        $status_name = $request->input('status_name');
 
-    // Memulai query, selalu sertakan relasi untuk efisiensi
-    $query = Aset::with(['kategori', 'status']);
+        // Memulai query, selalu sertakan relasi untuk efisiensi
+        $query = Aset::with(['kategori', 'status']);
 
-    // ======================================================
-    // LOGIKA FILTER YANG DISEMPURNAKAN
-    // ======================================================
+        // ======================================================
+        // LOGIKA FILTER YANG DISEMPURNAKAN
+        // ======================================================
 
-    // 1. Filter dari Pencarian Canggih
-    if ($search) {
-        $query->where(function($q) use ($search) {
-            $q->where('nama_aset', 'like', '%' . $search . '%')
-              ->orWhereHas('kategori', function ($q_kategori) use ($search) {
-                  $q_kategori->where('name', 'like', '%' . $search . '%');
-              })
-              ->orWhereHas('status', function ($q_status) use ($search) {
-                  $q_status->where('name', 'like', '%' . $search . '%');
-              });
-        });
-    }
-
-    // 2. Filter dari Halaman Status (berdasarkan ID)
-    if ($status_id) {
-        $query->where('status_id', $status_id);
-    }
-
-    // 3. Filter dari Halaman Kategori (berdasarkan ID)
-    if ($kategori_id) {
-        $query->where('kategori_id', $kategori_id);
-    }
-
-    // 4. Filter tambahan dari Halaman Kategori (berdasarkan nama 'Tersedia')
-    if ($status_name) {
-        $query->whereHas('status', function($q) use ($status_name) {
-            $q->where('name', $status_name);
-        });
-    }
-
-    // --- LOGIKA PENGURUTAN ---
-    if ($sort) {
-        if ($sort === 'kategori') {
-            $query->select('asets.*')
-                  ->join('kategoris', 'asets.kategori_id', '=', 'kategoris.id')
-                  ->orderBy('kategoris.name', $direction);
-        } elseif ($sort === 'status') {
-            $query->select('asets.*')
-                  ->join('statuses', 'asets.status_id', '=', 'statuses.id')
-                  ->orderBy('statuses.name', $direction);
-        } else {
-            $query->orderBy($sort, $direction);
+        // 1. Filter dari Pencarian Canggih
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_aset', 'like', '%' . $search . '%')
+                  ->orWhereHas('kategori', function ($q_kategori) use ($search) {
+                      $q_kategori->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('status', function ($q_status) use ($search) {
+                      $q_status->where('name', 'like', '%' . $search . '%');
+                  });
+            });
         }
-    } else {
-        // Urutan default
-        $query->orderBy('id', 'desc');
+
+        // 2. Filter dari Halaman Status (berdasarkan ID)
+        if ($status_id) {
+            $query->where('status_id', $status_id);
+        }
+
+        // 3. Filter dari Halaman Kategori (berdasarkan ID)
+        if ($kategori_id) {
+            $query->where('kategori_id', $kategori_id);
+        }
+
+        // 4. Filter tambahan dari Halaman Kategori (berdasarkan nama 'Tersedia')
+        if ($status_name) {
+            $query->whereHas('status', function($q) use ($status_name) {
+                $q->where('name', $status_name);
+            });
+        }
+
+        // --- LOGIKA PENGURUTAN ---
+        if ($sort) {
+            if ($sort === 'kategori') {
+                $query->select('asets.*')
+                      ->join('kategoris', 'asets.kategori_id', '=', 'kategoris.id')
+                      ->orderBy('kategoris.name', $direction);
+            } elseif ($sort === 'status') {
+                $query->select('asets.*')
+                      ->join('statuses', 'asets.status_id', '=', 'statuses.id')
+                      ->orderBy('statuses.name', $direction);
+            } else {
+                $query->orderBy($sort, $direction);
+            }
+        } else {
+            // Urutan default
+            $query->orderBy('id', 'desc');
+        }
+
+        $asets = $query->paginate(10);
+
+        return view('aset.index', compact('asets', 'search', 'sort', 'direction'));
     }
 
-    $asets = $query->paginate(10);
+    /**
+     * Mencari aset untuk Select2 AJAX.
+     */
+    public function search(Request $request)
+    {
+        // Mengambil parameter pencarian dari Select2 (menggunakan 'term' sesuai standar Select2)
+        $search = $request->input('term');
 
-    return view('aset.index', compact('asets', 'search', 'sort', 'direction'));
-}
+        $asets = Aset::where('nama_aset', 'LIKE', "%{$search}%")
+                     ->whereHas('status', function($query) {
+                         $query->where('name', 'Tersedia'); // Hanya cari aset yang tersedia
+                     })
+                     ->select('id', 'nama_aset', 'harga_jual') // Sertakan harga_jual untuk dropdown
+                     ->limit(20) // Batasi hasil agar tidak terlalu banyak
+                     ->get();
 
+        // Format respons sesuai kebutuhan Select2 dan create.blade.php
+        $formatted_asets = $asets->map(function($aset) {
+            return [
+                'id' => $aset->id,
+                'nama_aset' => $aset->nama_aset,
+                'harga_jual' => $aset->harga_jual,
+                'text' => $aset->nama_aset . ' (Harga: Rp ' . number_format($aset->harga_jual, 0, ',', '.') . ')'
+            ];
+        });
+
+        return response()->json($formatted_asets);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -208,4 +236,4 @@ public function index(Request $request)
 
         return redirect()->route('aset.index')->with('success', 'Aset dan semua riwayat transaksinya berhasil dihapus.');
     }
-}   
+}

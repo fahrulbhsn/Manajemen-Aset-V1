@@ -39,11 +39,15 @@ Route::get('/dashboard', function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+  
+        // Rute khusus untuk pencarian aset via AJAX
+    Route::get('/api/aset/search', [AsetController::class, 'search'])->name('aset.search');
     Route::resource('kategori', KategoriController::class);
     Route::resource('status', StatusController::class);
     Route::resource('aset', AsetController::class);
     Route::resource('transaksi', TransaksiController::class);
+
+
 
     Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
     Route::get('/laporan/pembelian', [LaporanController::class, 'pembelian'])->name('laporan.pembelian');
