@@ -13,44 +13,76 @@ class AsetController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        // Ambil kata kunci pencarian dari URL, jika ada.
-        $search = $request->input('search');
+public function index(Request $request)
+{
+    // Mengambil semua parameter dari URL
+    $search = $request->input('search');
+    $sort = $request->input('sort');
+    $direction = $request->input('direction', 'asc');
+    $kategori_id = $request->input('kategori_id');
+    $status_id = $request->input('status_id');
+    $status_name = $request->input('status_name');
 
-        // Memulai query ke tabel aset, selalu sertakan data relasi.
-        $query = Aset::with(['kategori', 'status']);
+    // Memulai query, selalu sertakan relasi untuk efisiensi
+    $query = Aset::with(['kategori', 'status']);
 
-        // --- LOGIKA FILTER DIMULAI DI SINI ---
+    // ======================================================
+    // LOGIKA FILTER YANG DISEMPURNAKAN
+    // ======================================================
 
-        // Jika ada filter pencarian
-        if ($search) {
-        $query->where('nama_aset', 'like', '%' . $search . '%');
-        }
-
-        // Jika ada filter status_id dari URL (dari halaman Status)
-        if ($request->has('status_id')) {
-        $query->where('status_id', $request->status_id);
-        }
-
-        // Jika ada filter kategori_id dari URL (dari halaman Kategori)
-        if ($request->has('kategori_id')) {
-        $query->where('kategori_id', $request->kategori_id);
-
-        // Khusus untuk Kategori, kita juga pastikan statusnya "Tersedia"
-        $query->whereHas('status', function($q) {
-            $q->where('name', 'Tersedia');
+    // 1. Filter dari Pencarian Canggih
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('nama_aset', 'like', '%' . $search . '%')
+              ->orWhereHas('kategori', function ($q_kategori) use ($search) {
+                  $q_kategori->where('name', 'like', '%' . $search . '%');
+              })
+              ->orWhereHas('status', function ($q_status) use ($search) {
+                  $q_status->where('name', 'like', '%' . $search . '%');
+              });
         });
     }
 
-    // --- AKHIR LOGIKA FILTER ---
-
-    // Mengurutkan berdasarkan ID dari yang terbesar dan membaginya per halaman.
-    $asets = $query->orderBy('id', 'desc')->paginate(10); 
-
-    // Mengirim data ke view.
-    return view('aset.index', compact('asets', 'search')); 
+    // 2. Filter dari Halaman Status (berdasarkan ID)
+    if ($status_id) {
+        $query->where('status_id', $status_id);
     }
+
+    // 3. Filter dari Halaman Kategori (berdasarkan ID)
+    if ($kategori_id) {
+        $query->where('kategori_id', $kategori_id);
+    }
+
+    // 4. Filter tambahan dari Halaman Kategori (berdasarkan nama 'Tersedia')
+    if ($status_name) {
+        $query->whereHas('status', function($q) use ($status_name) {
+            $q->where('name', $status_name);
+        });
+    }
+
+    // --- LOGIKA PENGURUTAN ---
+    if ($sort) {
+        if ($sort === 'kategori') {
+            $query->select('asets.*')
+                  ->join('kategoris', 'asets.kategori_id', '=', 'kategoris.id')
+                  ->orderBy('kategoris.name', $direction);
+        } elseif ($sort === 'status') {
+            $query->select('asets.*')
+                  ->join('statuses', 'asets.status_id', '=', 'statuses.id')
+                  ->orderBy('statuses.name', $direction);
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+    } else {
+        // Urutan default
+        $query->orderBy('id', 'desc');
+    }
+
+    $asets = $query->paginate(10);
+
+    return view('aset.index', compact('asets', 'search', 'sort', 'direction'));
+}
+
 
     /**
      * Show the form for creating a new resource.

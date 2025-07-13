@@ -26,11 +26,9 @@
                     @forelse ($kategoris as $kategori)
                         <tr>
                             <td>{{ $kategori->name }}</td>
+                            <td>{{ $kategori->asets->where('status.name', 'Tersedia')->count() }}</td>
                             <td>
-                                {{-- Hitung manual aset yang statusnya 'Tersedia' untuk kategori ini --}}
-                                {{ $kategori->asets->where('status.name', 'Tersedia')->count() }}
-                            </td>
-                            <td>
+                                {{-- PERBAIKAN LINK FILTER ADA DI SINI --}}
                                 <a href="{{ route('aset.index', ['kategori_id' => $kategori->id, 'status_name' => 'Tersedia']) }}" class="btn btn-info btn-circle btn-sm" title="Lihat Aset Tersedia">
                                     <i class="fas fa-eye"></i>
                                 </a>
