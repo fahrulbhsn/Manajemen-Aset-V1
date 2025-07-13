@@ -47,9 +47,10 @@
                             <td>{{ $transaksi->user->name }}</td>
                             <td>
                                 {{-- Tombol Detail/Cetak Struk akan kita tambahkan nanti --}}
-                                <a href="#" class="btn btn-info btn-circle btn-sm">
+                                <a href="{{ route('transaksi.show', $transaksi->id) }}" class="btn btn-info btn-circle btn-sm" title="Detail Transaksi">
                                     <i class="fas fa-eye"></i>
                                 </a>
+                                
                             </td>
                         </tr>
                     @empty

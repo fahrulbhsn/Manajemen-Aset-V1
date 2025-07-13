@@ -101,4 +101,16 @@ class TransaksiController extends Controller
 
         return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus dan status aset telah dikembalikan.');
     }
+
+    /**
+     * Menampilkan detail transaksi tertentu.
+     */
+    public function show(Transaksi $transaksi)
+    {
+    // Mengirim data transaksi yang spesifik, beserta relasinya,
+    // ke halaman view 'transaksi.show'
+    $transaksi->load(['aset', 'user']);
+
+    return view('transaksi.show', compact('transaksi'));
+    }
 }
