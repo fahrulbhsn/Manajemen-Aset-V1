@@ -10,6 +10,7 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController; // Import ActivityLogController
 use App\Models\Aset;
+use App\Models\Transaksi;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,40 @@ Route::get('/dashboard', function () {
     Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('users', UserController::class);
     Route::get('/aktivitas', [ActivityLogController::class, 'index'])->name('aktivitas.index');
+
+Route::get('/dashboard', function () {
+    // 1. Data untuk Kartu Metrik Utama
+    $asetTersedia = Aset::whereHas('status', function($q){ $q->where('name', 'Tersedia'); })->count();
+    $asetTerjual = Aset::whereHas('status', function($q){ $q->where('name', 'Terjual'); })->count();
+    $asetPerbaikan = Aset::whereHas('status', function($q){ $q->where('name', 'Perbaikan'); })->count();
+
+    // 2. Data untuk Grafik (Penjualan 7 Hari Terakhir)
+    $penjualanSeminggu = Transaksi::where('tanggal_jual', '>=', now()->subDays(7))
+        ->selectRaw('DATE(tanggal_jual) as tanggal, COUNT(*) as jumlah')
+        ->groupBy('tanggal')
+        ->orderBy('tanggal', 'asc')
+        ->get();
+
+    // Format data untuk Chart.js
+    $labels = $penjualanSeminggu->pluck('tanggal')->map(function($date) {
+        return \Carbon\Carbon::parse($date)->format('d M');
+    });
+    $data = $penjualanSeminggu->pluck('jumlah');
+
+    // 3. Data untuk Tabel (5 Transaksi Terakhir)
+    $transaksiTerbaru = Transaksi::with(['aset', 'user'])->latest()->take(5)->get();
+
+    // Kirim semua data ke view
+    return view('dashboard', compact(
+        'asetTersedia', 
+        'asetTerjual', 
+        'asetPerbaikan',
+        'transaksiTerbaru',
+        'labels',
+        'data'
+    ));
+
+})->middleware(['auth', 'verified'])->name('dashboard');
     });
 });
 
