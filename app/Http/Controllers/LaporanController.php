@@ -101,4 +101,32 @@ class LaporanController extends Controller
         // Kirim data ke view
         return view('laporan.pembelian', compact('asets', 'totalPengeluaran'));
     }
+    public function laba_rugi(Request $request)
+    {
+        // Ambil tanggal awal dan akhir dari filter, jika ada
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+
+    // Mulai query ke tabel transaksi
+    $query = Transaksi::query();
+
+    // Terapkan filter tanggal jika ada
+    if ($tanggal_awal && $tanggal_akhir) {
+        $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+    }
+
+    // Ambil semua transaksi yang relevan
+    $transaksis = $query->with('aset')->latest()->get();
+
+    // Hitung metrik keuangan
+    $totalPendapatan = $transaksis->sum('harga_jual_akhir');
+    $totalModal = $transaksis->sum(function($transaksi) {
+        // Pastikan aset masih ada untuk diambil harga belinya
+        return $transaksi->aset->harga_beli ?? 0;
+    });
+    $labaBersih = $totalPendapatan - $totalModal;
+
+    // Kirim semua data ke view
+    return view('laporan.laba_rugi', compact('transaksis', 'totalPendapatan', 'totalModal', 'labaBersih'));
+    }
 }

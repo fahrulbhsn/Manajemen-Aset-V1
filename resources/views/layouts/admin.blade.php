@@ -47,6 +47,7 @@
                         <a class="collapse-item" href="{{ route('transaksi.index') }}">Daftar Transaksi</a>
                         <a class="collapse-item" href="{{ route('laporan.penjualan') }}">Laporan Penjualan</a>
                         <a class="collapse-item" href="{{ route('laporan.pembelian') }}">Laporan Pembelian</a>
+                        <a class="collapse-item" href="{{ route('laporan.laba_rugi') }}">Laporan Laba Rugi</a>
                     </div>
                 </div>
             </li>
@@ -88,7 +89,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Manajemen Aset V1 {{ date('Y') }}</span>
+                        <span>Copyright © Manajemen Aset V1 {{ date('Y') }}</span>
                     </div>
                 </div>
             </footer>

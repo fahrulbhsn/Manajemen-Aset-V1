@@ -46,11 +46,11 @@ Route::get('/dashboard', function () {
     Route::resource('status', StatusController::class);
     Route::resource('aset', AsetController::class);
     Route::resource('transaksi', TransaksiController::class);
-
-
-
+    
+    // Rute untuk laporan
     Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
     Route::get('/laporan/pembelian', [LaporanController::class, 'pembelian'])->name('laporan.pembelian');
+    Route::get('/laporan/laba-rugi', [LaporanController::class, 'laba_rugi'])->name('laporan.laba_rugi');
     Route::get('/laporan/penjualan/pdf', [LaporanController::class, 'cetak_pdf'])->name('laporan.cetak_pdf');
     Route::get('/laporan/penjualan/excel', [LaporanController::class, 'cetak_excel'])->name('laporan.cetak_excel');
     
