@@ -46,14 +46,30 @@ class TransaksiController extends Controller
             $aset->save();
         }
 
-        return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dicatat.');
+        // Simpan data transaksi baru dan tampung di dalam variabel $transaksi
+        $transaksi = Transaksi::create([
+            'aset_id' => $request->aset_id,
+            'user_id' => Auth::id(),
+            'nama_pembeli' => $request->nama_pembeli,
+            'kontak_pembeli' => $request->kontak_pembeli,
+            'harga_jual_akhir' => $request->harga_jual_akhir,
+            'tanggal_jual' => $request->tanggal_jual,
+            'metode_pembayaran' => $request->metode_pembayaran,
+        ]);
+
+        // ... (logika update status aset) ...
+        $aset = Aset::find($request->aset_id);
+        $statusTerjual = Status::where('name', 'Terjual')->first();
+        if ($aset && $statusTerjual) {
+            $aset->status_id = $statusTerjual->id;
+            $aset->tanggal_update = now();
+            $aset->save();
     }
 
-
-    // ==================================
-    // FUNGSI BARU DIMULAI DI SINI
-    // ==================================
-
+        // Arahkan ke halaman detail dari transaksi yang BARU SAJA DIBUAT
+        return redirect()->route('transaksi.show', $transaksi->id)
+                         ->with('success', 'Transaksi berhasil dicatat! Anda bisa mencetak struk di sini.');
+    }
     /**
      * Menampilkan formulir untuk mengedit transaksi.
      */
@@ -101,16 +117,22 @@ class TransaksiController extends Controller
 
         return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus dan status aset telah dikembalikan.');
     }
-
-    /**
-     * Menampilkan detail transaksi tertentu.
-     */
+        /**
+        * Menampilkan halaman struk untuk dicetak.
+        */
+        public function cetak_struk(Transaksi $transaksi)
+    {
+            // Mengirim data transaksi yang spesifik ke halaman view 'transaksi.struk'
+            return view('transaksi.struk', compact('transaksi'));
+    }
+        /**
+        * Menampilkan detail transaksi tertentu.
+        */
     public function show(Transaksi $transaksi)
     {
-    // Mengirim data transaksi yang spesifik, beserta relasinya,
-    // ke halaman view 'transaksi.show'
-    $transaksi->load(['aset', 'user']);
-
-    return view('transaksi.show', compact('transaksi'));
+        // Mengirim data transaksi yang spesifik, beserta relasinya,
+        // ke halaman view 'transaksi.show'
+        $transaksi->load(['aset', 'user']);
+        return view('transaksi.show', compact('transaksi'));
     }
 }

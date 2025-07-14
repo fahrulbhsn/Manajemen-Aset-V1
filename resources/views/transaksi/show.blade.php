@@ -8,7 +8,13 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">Rincian Transaksi</h6>
-        <a href="{{ route('transaksi.index') }}" class="btn btn-secondary btn-sm">Kembali ke Daftar Transaksi</a>
+        <div>
+            {{-- TOMBOL BARU UNTUK CETAK STRUK --}}
+            <a href="{{ route('transaksi.cetak_struk', $transaksi->id) }}" class="btn btn-success btn-sm" target="_blank">
+                <i class="fas fa-print"></i> Cetak Struk
+            </a>
+            <a href="{{ route('transaksi.index') }}" class="btn btn-secondary btn-sm ml-2">Kembali</a>
+        </div>
     </div>
     <div class="card-body">
         <div class="row">

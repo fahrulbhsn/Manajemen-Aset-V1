@@ -53,6 +53,9 @@ Route::get('/dashboard', function () {
     Route::get('/laporan/laba-rugi', [LaporanController::class, 'laba_rugi'])->name('laporan.laba_rugi');
     Route::get('/laporan/penjualan/pdf', [LaporanController::class, 'cetak_pdf'])->name('laporan.cetak_pdf');
     Route::get('/laporan/penjualan/excel', [LaporanController::class, 'cetak_excel'])->name('laporan.cetak_excel');
+    // Rute untuk cetak struk transaksi
+    Route::get('/transaksi/{transaksi}/cetak', [App\Http\Controllers\TransaksiController::class, 'cetak_struk'])->name('transaksi.cetak_struk');
+    Route::resource('transaksi', App\Http\Controllers\TransaksiController::class);
     
 
     // Rute Khusus Admin
