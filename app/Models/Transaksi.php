@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity; // Import trait untuk mencatat aktivitas
 
 class Transaksi extends Model
 {
     use HasFactory;
+    use LogsActivity; // Gunakan trait LogsActivity untuk mencatat aktivitas
 
     // Izinkan semua kolom untuk diisi secara massal kecuali ID
     protected $guarded = ['id'];
