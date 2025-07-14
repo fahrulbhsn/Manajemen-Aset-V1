@@ -8,16 +8,26 @@
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/dark-mode.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body id="page-top">
     <div id="wrapper">
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-            {{-- Isi sidebar Anda di sini, tidak perlu diubah --}}
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
-                <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
-                <div class="sidebar-brand-text mx-3">RHS <sup>2</sup></div>
-            </a>
+            {{-- Isi sidebar --}}
+            <!--  CSS untuk membuat logo -->
+            <style>
+                .sidebar-brand-icon img {
+                border-radius: 50%;
+                object-fit: cover;}
+            </style>
+                <!-- Ganti bagian sidebar-brand dengan ini -->
+                <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
+                    <div class="sidebar-brand-icon">
+                        <img src="{{ asset('img/logo.png') }}" alt="Gigih Com" width="40" height="40">
+                    </div>
+                    <div class="sidebar-brand-text mx-3">Gigih Com</div>
+                </a>
             <hr class="sidebar-divider my-0">
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('dashboard') }}"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a>
@@ -58,6 +68,14 @@
                 <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-fw fa-users"></i><span>Manajemen User</span></a>
             </li>
             @endif
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('aktivitas.index') }}">
+                    <i class="fas fa-fw fa-history"></i>
+                    <span>Aktivitas Pengguna</span>
+                </a>
+            </li>
+            
             <hr class="sidebar-divider d-none d-md-block">
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
@@ -68,6 +86,12 @@
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"><i class="fa fa-bars"></i></button>
                     <ul class="navbar-nav ml-auto">
+                        <!-- Tombol Dark Mode -->
+                        <li class="nav-item">
+                            <button id="theme-toggle" type="button" class="nav-link bg-transparent border-0 cursor-pointer">
+                                <i class="fas fa-sun"></i>
+                            </button>
+                        </li>
                         <div class="topbar-divider d-none d-sm-block"></div>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -89,7 +113,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright © Manajemen Aset V1 {{ date('Y') }}</span>
+                        <span>Copyright © cerul.com {{ date('Y') }}</span>
                     </div>
                 </div>
             </footer>
@@ -125,5 +149,42 @@
     
     {{-- Tempat untuk script khusus dari halaman lain --}}
     @stack('scripts')
+
+    <!-- Skrip untuk mengelola toggle dark mode -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ambil elemen tombol toggle
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            
+            // Ikon untuk mode terang dan gelap
+            const themeToggleDarkIcon = '<i class="fas fa-moon"></i>';
+            const themeToggleLightIcon = '<i class="fas fa-sun"></i>';
+
+            // Fungsi untuk memperbarui ikon dan tema
+            function updateTheme() {
+                const isDarkMode = localStorage.getItem('color-theme') === 'dark' || 
+                                  (!('color-theme' in localStorage) && 
+                                   window.matchMedia('(prefers-color-scheme: dark)').matches);
+                
+                themeToggleBtn.innerHTML = isDarkMode ? themeToggleLightIcon : themeToggleDarkIcon;
+                document.documentElement.classList.toggle('dark', isDarkMode);
+            }
+
+            // Inisialisasi tema saat halaman dimuat
+            updateTheme();
+
+            // Event listener untuk tombol toggle
+            themeToggleBtn.addEventListener('click', function() {
+                // Toggle antara mode terang dan gelap
+                const currentTheme = localStorage.getItem('color-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 
+                                (currentTheme === 'dark' ? 'light' : 
+                                (document.documentElement.classList.contains('dark') ? 'light' : 'dark'));
+                
+                localStorage.setItem('color-theme', newTheme);
+                updateTheme();
+            });
+        });
+    </script>
 </body>
 </html>

@@ -8,6 +8,7 @@ use App\Http\Controllers\AsetController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ActivityLogController; // Import ActivityLogController
 use App\Models\Aset;
 
 /*
@@ -61,6 +62,7 @@ Route::get('/dashboard', function () {
     // Rute Khusus Admin
     Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('users', UserController::class);
+    Route::get('/aktivitas', [ActivityLogController::class, 'index'])->name('aktivitas.index');
     });
 });
 
