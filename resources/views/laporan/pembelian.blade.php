@@ -20,6 +20,9 @@
                 <div class="form-group col-md-2">
                     <button type="submit" class="btn btn-primary btn-block">Filter</button>
                 </div>
+                <a href="{{ route('laporan.pembelian.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Ekspor PDF
+                </a>
             </div>
         </form>
     </div>

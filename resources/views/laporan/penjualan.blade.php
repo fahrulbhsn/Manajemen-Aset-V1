@@ -21,9 +21,9 @@
                     <button type="submit" class="btn btn-primary btn-block">Filter</button>
                 </div>
 
-                <div class="form-group col-md-2">
-                    <a href="{{ route('laporan.cetak_pdf', request()->query()) }}" class="btn btn-success btn-block" target="_blank">Ekspor PDF</a>
-                </div>
+<a href="{{ route('laporan.penjualan.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
+    <i class="fas fa-file-pdf"></i> Ekspor PDF
+</a>
 
                 <div class="form-group col-md-2">
                     <a href="{{ route('laporan.cetak_excel', request()->query()) }}" class="btn btn-success btn-block">Ekspor Excel</a>

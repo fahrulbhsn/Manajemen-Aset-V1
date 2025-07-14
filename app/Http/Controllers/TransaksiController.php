@@ -10,12 +10,38 @@ use Illuminate\Support\Facades\Auth;
 
 class TransaksiController extends Controller
 {
-    // ... (fungsi index, create, dan store Anda sudah ada di sini dan sudah benar) ...
-    public function index()
-    {
-        $transaksis = Transaksi::with(['aset', 'user'])->latest()->get();
-        return view('transaksi.index', compact('transaksis'));
+public function index(Request $request)
+{
+    $tanggal_awal = $request->input('tanggal_awal');
+    $tanggal_akhir = $request->input('tanggal_akhir');
+    $search = $request->input('search');
+
+    $query = Transaksi::with(['aset', 'user'])->latest();
+
+    // Terapkan filter tanggal
+    if ($tanggal_awal && $tanggal_akhir) {
+        $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
     }
+
+    // Terapkan filter pencarian
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            // Cari berdasarkan ID Transaksi (tanpa "TRX-")
+            if (is_numeric($search)) {
+                $q->where('id', $search);
+            }
+            // Cari berdasarkan Nama Aset atau Nama Pembeli
+            $q->orWhere('nama_pembeli', 'like', '%' . $search . '%')
+              ->orWhereHas('aset', function ($q_aset) use ($search) {
+                  $q_aset->where('nama_aset', 'like', '%' . $search . '%');
+              });
+        });
+    }
+
+    $transaksis = $query->paginate(10);
+
+    return view('transaksi.index', compact('transaksis', 'tanggal_awal', 'tanggal_akhir', 'search'));
+}
 
     public function create()
     {

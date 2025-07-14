@@ -69,12 +69,14 @@
             </li>
             @endif
             
+            @if(Auth::user()->role == 'admin')
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('aktivitas.index') }}">
                     <i class="fas fa-fw fa-history"></i>
-                    <span>Aktivitas Pengguna</span>
+                    <span>Aktivitas</span>
                 </a>
             </li>
+            @endif
             
             <hr class="sidebar-divider d-none d-md-block">
             <div class="text-center d-none d-md-inline">
