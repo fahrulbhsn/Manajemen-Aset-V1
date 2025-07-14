@@ -34,6 +34,7 @@ class AsetController extends Controller
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('nama_aset', 'like', '%' . $search . '%')
+                    
                   ->orWhereHas('kategori', function ($q_kategori) use ($search) {
                       $q_kategori->where('name', 'like', '%' . $search . '%');
                   })
