@@ -21,8 +21,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>Manajemen Aset V1</h2>
-            <p>Jalan Kode No. 12, Jakarta</p>
+            <h2>Gigih Computer</h2>
+            <p>Jl. Wirotaman, Argo Peni, Kutoarjo, Kec. Kutoarjo, Kabupaten Purworejo, Jawa Tengah 54251</p>
         </div>
         <div class="transaction-details">
             <div class="item">
