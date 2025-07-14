@@ -73,7 +73,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('aktivitas.index') }}">
                     <i class="fas fa-fw fa-history"></i>
-                    <span>Aktivitas</span>
+                    <span>Aktivitas Pengguna</span>
                 </a>
             </li>
             @endif

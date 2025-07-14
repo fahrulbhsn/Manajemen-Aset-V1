@@ -18,88 +18,49 @@ use App\Models\Transaksi;
 |--------------------------------------------------------------------------
 */
 
-// Rute Halaman Awal (Tidak Perlu Diubah)
-Route::get('/', function () {
-    return view('welcome');
-});
+    // Rute Halaman Awal
+    Route::get('/', function () {
+        return view('welcome');
+    });
 
-// Rute Dashboard (HANYA SATU DEFINISI YANG BENAR)
-Route::get('/dashboard', function () {
-    // Hitung jumlah aset untuk setiap status
-    $asetTersedia = Aset::whereHas('status', function($q){ $q->where('name', 'Tersedia'); })->count();
-    $asetTerjual = Aset::whereHas('status', function($q){ $q->where('name', 'Terjual'); })->count();
-    $asetPerbaikan = Aset::whereHas('status', function($q){ $q->where('name', 'Perbaikan'); })->count();
-
-    // Kirim semua data hitungan ke view dashboard
-    return view('dashboard', compact('asetTersedia', 'asetTerjual', 'asetPerbaikan'));
-
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-
-// Rute-rute Lain yang Membutuhkan Login
+    // Rute-rute yang Membutuhkan Login
     Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-  
-        // Rute khusus untuk pencarian aset via AJAX
-    Route::get('/api/aset/search', [AsetController::class, 'search'])->name('aset.search');
-    Route::resource('kategori', KategoriController::class);
-    Route::resource('status', StatusController::class);
-    Route::resource('aset', AsetController::class);
-    Route::resource('transaksi', TransaksiController::class);
-    
-    // Rute untuk laporan
-    Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
-    Route::get('/laporan/pembelian', [LaporanController::class, 'pembelian'])->name('laporan.pembelian');
-    Route::get('/laporan/laba-rugi', [LaporanController::class, 'laba_rugi'])->name('laporan.laba_rugi');
-    Route::get('/laporan/penjualan/cetak-pdf', [LaporanController::class, 'cetak_penjualan_pdf'])->name('laporan.penjualan.pdf');
-    Route::get('/laporan/pembelian/pdf', [LaporanController::class, 'cetak_pembelian'])->name('laporan.pembelian.pdf');
-    Route::get('/laporan/laba-rugi/pdf', [LaporanController::class, 'cetak_laba_rugi'])->name('laporan.laba_rugi.pdf');
-    Route::get('/laporan/penjualan/excel', [LaporanController::class, 'cetak_excel'])->name('laporan.cetak_excel');
-    // Rute untuk cetak struk transaksi
-    Route::get('/transaksi/{transaksi}/cetak', [App\Http\Controllers\TransaksiController::class, 'cetak_struk'])->name('transaksi.cetak_struk');
-    Route::resource('transaksi', App\Http\Controllers\TransaksiController::class);
-    
+        Route::get('/dashboard', function () {
+        $asetTersedia = Aset::whereHas('status', function($q){ $q->where('name', 'Tersedia'); })->count();
+        $asetTerjual = Aset::whereHas('status', function($q){ $q->where('name', 'Terjual'); })->count();
+        $asetPerbaikan = Aset::whereHas('status', function($q){ $q->where('name', 'Perbaikan'); })->count();
+        $transaksiTerbaru = Transaksi::with(['aset', 'user'])->latest()->take(5)->get();
+        $penjualanSeminggu = Transaksi::where('tanggal_jual', '>=', now()->subDays(7))
+            ->selectRaw('DATE(tanggal_jual) as tanggal, COUNT(*) as jumlah')
+            ->groupBy('tanggal')->orderBy('tanggal', 'asc')->get();
+        $labels = $penjualanSeminggu->pluck('tanggal')->map(fn($date) => \Carbon\Carbon::parse($date)->format('d M'));
+        $data = $penjualanSeminggu->pluck('jumlah');
+        return view('dashboard', compact('asetTersedia', 'asetTerjual', 'asetPerbaikan', 'transaksiTerbaru', 'labels', 'data'));})->name('dashboard');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        // Rute pencarian aset via AJAX
+        Route::get('/api/aset/search', [AsetController::class, 'search'])->name('aset.search');
+        Route::resource('kategori', KategoriController::class);
+        Route::resource('status', StatusController::class);
+        Route::resource('aset', AsetController::class);
+        Route::resource('transaksi', TransaksiController::class);
+        // Rute untuk laporan
+        Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
+        Route::get('/laporan/pembelian', [LaporanController::class, 'pembelian'])->name('laporan.pembelian');
+        Route::get('/laporan/laba-rugi', [LaporanController::class, 'laba_rugi'])->name('laporan.laba_rugi');
+        Route::get('/laporan/penjualan/cetak-pdf', [LaporanController::class, 'cetak_penjualan_pdf'])->name('laporan.penjualan.pdf');
+        Route::get('/laporan/pembelian/pdf', [LaporanController::class, 'cetak_pembelian'])->name('laporan.pembelian.pdf');
+        Route::get('/laporan/laba-rugi/pdf', [LaporanController::class, 'cetak_laba_rugi'])->name('laporan.laba_rugi.pdf');
+        Route::get('/laporan/penjualan/excel', [LaporanController::class, 'cetak_excel'])->name('laporan.cetak_excel');
+        // Rute untuk cetak struk transaksi
+        Route::get('/transaksi/{transaksi}/cetak', [App\Http\Controllers\TransaksiController::class, 'cetak_struk'])->name('transaksi.cetak_struk');
+        Route::resource('transaksi', App\Http\Controllers\TransaksiController::class);
 
     // Rute Khusus Admin
     Route::middleware(['auth', 'admin'])->group(function () {
-    Route::resource('users', UserController::class);
-    Route::get('/aktivitas', [ActivityLogController::class, 'index'])->name('aktivitas.index');
-
-Route::get('/dashboard', function () {
-    // 1. Data untuk Kartu Metrik Utama
-    $asetTersedia = Aset::whereHas('status', function($q){ $q->where('name', 'Tersedia'); })->count();
-    $asetTerjual = Aset::whereHas('status', function($q){ $q->where('name', 'Terjual'); })->count();
-    $asetPerbaikan = Aset::whereHas('status', function($q){ $q->where('name', 'Perbaikan'); })->count();
-
-    // 2. Data untuk Grafik (Penjualan 7 Hari Terakhir)
-    $penjualanSeminggu = Transaksi::where('tanggal_jual', '>=', now()->subDays(7))
-        ->selectRaw('DATE(tanggal_jual) as tanggal, COUNT(*) as jumlah')
-        ->groupBy('tanggal')
-        ->orderBy('tanggal', 'asc')
-        ->get();
-
-    // Format data untuk Chart.js
-    $labels = $penjualanSeminggu->pluck('tanggal')->map(function($date) {
-        return \Carbon\Carbon::parse($date)->format('d M');
-    });
-    $data = $penjualanSeminggu->pluck('jumlah');
-
-    // 3. Data untuk Tabel (5 Transaksi Terakhir)
-    $transaksiTerbaru = Transaksi::with(['aset', 'user'])->latest()->take(5)->get();
-
-    // Kirim semua data ke view
-    return view('dashboard', compact(
-        'asetTersedia', 
-        'asetTerjual', 
-        'asetPerbaikan',
-        'transaksiTerbaru',
-        'labels',
-        'data'
-    ));
-
-})->middleware(['auth', 'verified'])->name('dashboard');
+        Route::resource('users', UserController::class);
+        Route::get('/aktivitas', [ActivityLogController::class, 'index'])->name('aktivitas.index');
     });
 });
 
