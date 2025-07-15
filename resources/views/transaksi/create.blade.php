@@ -107,20 +107,3 @@
     });
 </script>
 @endpush
-
-@push('scripts')
-<script>
-    // Menambahkan event listener pada form saat disubmit
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.querySelector('form');
-        const submitButton = form.querySelector('button[type="submit"]');
-
-        form.addEventListener('submit', function () {
-            // Saat tombol diklik, nonaktifkan tombolnya
-            submitButton.disabled = true;
-            // Ubah teksnya untuk memberikan feedback ke pengguna
-            submitButton.innerHTML = 'Menyimpan...';
-        });
-    });
-</script>
-@endpush
