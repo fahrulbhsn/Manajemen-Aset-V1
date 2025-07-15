@@ -22,7 +22,7 @@
     <div class="container">
         <div class="header">
             <h2>Gigih Computer</h2>
-            <p>Jl. Wirotaman, Argo Peni, Kutoarjo, Kec. Kutoarjo, Kabupaten Purworejo, Jawa Tengah 54251</p>
+            <p>Jl. Wirotaman, Argopeni, Kutoarjo, Kec. Kutoarjo, Kabupaten Purworejo, Jawa Tengah 54251</p>
         </div>
         <div class="transaction-details">
             <div class="item">
@@ -31,7 +31,7 @@
             </div>
             <div class="item">
                 <span>Tanggal:</span>
-                <span>{{ \Carbon\Carbon::parse($transaksi->tanggal_jual)->format('d/m/Y H:i') }}</span>
+                <span>{{ \Carbon\Carbon::parse($transaksi->tanggal_jual)->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') }}</span>
             </div>
             <div class="item">
                 <span>Kasir:</span>

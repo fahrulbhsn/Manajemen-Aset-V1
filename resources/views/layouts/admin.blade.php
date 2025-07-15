@@ -8,7 +8,6 @@
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/dark-mode.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body id="page-top">
@@ -88,12 +87,6 @@
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"><i class="fa fa-bars"></i></button>
                     <ul class="navbar-nav ml-auto">
-                        <!-- Tombol Dark Mode -->
-                        <li class="nav-item">
-                            <button id="theme-toggle" type="button" class="nav-link bg-transparent border-0 cursor-pointer">
-                                <i class="fas fa-sun"></i>
-                            </button>
-                        </li>
                         <div class="topbar-divider d-none d-sm-block"></div>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -149,44 +142,7 @@
     <script src="{{ asset('js/sb-admin-2.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
-    {{-- Tempat untuk script khusus dari halaman lain --}}
+    {{-- script dari halaman lain --}}
     @stack('scripts')
-
-    <!-- Skrip untuk mengelola toggle dark mode -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ambil elemen tombol toggle
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            
-            // Ikon untuk mode terang dan gelap
-            const themeToggleDarkIcon = '<i class="fas fa-moon"></i>';
-            const themeToggleLightIcon = '<i class="fas fa-sun"></i>';
-
-            // Fungsi untuk memperbarui ikon dan tema
-            function updateTheme() {
-                const isDarkMode = localStorage.getItem('color-theme') === 'dark' || 
-                                  (!('color-theme' in localStorage) && 
-                                   window.matchMedia('(prefers-color-scheme: dark)').matches);
-                
-                themeToggleBtn.innerHTML = isDarkMode ? themeToggleLightIcon : themeToggleDarkIcon;
-                document.documentElement.classList.toggle('dark', isDarkMode);
-            }
-
-            // Inisialisasi tema saat halaman dimuat
-            updateTheme();
-
-            // Event listener untuk tombol toggle
-            themeToggleBtn.addEventListener('click', function() {
-                // Toggle antara mode terang dan gelap
-                const currentTheme = localStorage.getItem('color-theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 
-                                (currentTheme === 'dark' ? 'light' : 
-                                (document.documentElement.classList.contains('dark') ? 'light' : 'dark'));
-                
-                localStorage.setItem('color-theme', newTheme);
-                updateTheme();
-            });
-        });
-    </script>
 </body>
 </html>
