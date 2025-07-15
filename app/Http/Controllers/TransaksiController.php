@@ -54,50 +54,43 @@ class TransaksiController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'aset_id' => 'required|exists:asets,id',
-            'nama_pembeli' => 'required|string|max:255',
-            'kontak_pembeli' => 'required|string|max:255',
-            'harga_jual_akhir' => 'required|integer',
-            'tanggal_jual' => 'required|date',
-            'metode_pembayaran' => 'required|string|in:Tunai,Transfer Bank,QRIS',
-        ]);
+{
+    // Validasi data masukan
+    $validatedData = $request->validate([
+        'aset_id' => 'required|exists:asets,id',
+        'nama_pembeli' => 'required|string|max:255',
+        'kontak_pembeli' => 'required|string|max:255',
+        'harga_jual_akhir' => 'required|integer',
+        'tanggal_jual' => 'required|date',
+        'metode_pembayaran' => 'required|string|in:Tunai,Transfer Bank,QRIS',
+    ]);
 
-        Transaksi::create($request->all() + ['user_id' => Auth::id()]);
+    // Tambahkan user_id dari pengguna yang sedang login
+    $validatedData['user_id'] = Auth::id();
 
-        $aset = Aset::find($request->aset_id);
-        $statusTerjual = Status::where('name', 'Terjual')->first();
-        if ($aset && $statusTerjual) {
-            $aset->status_id = $statusTerjual->id;
-            $aset->tanggal_update = now();
-            $aset->save();
-        }
+    // Cari aset berdasarkan aset_id
+    $aset = Aset::find($validatedData['aset_id']);
 
-        // Simpan data transaksi baru dan tampung di dalam variabel $transaksi
-        $transaksi = Transaksi::create([
-            'aset_id' => $request->aset_id,
-            'user_id' => Auth::id(),
-            'nama_pembeli' => $request->nama_pembeli,
-            'kontak_pembeli' => $request->kontak_pembeli,
-            'harga_jual_akhir' => $request->harga_jual_akhir,
-            'tanggal_jual' => $request->tanggal_jual,
-            'metode_pembayaran' => $request->metode_pembayaran,
-        ]);
-
-        // ... (logika update status aset) ...
-        $aset = Aset::find($request->aset_id);
-        $statusTerjual = Status::where('name', 'Terjual')->first();
-        if ($aset && $statusTerjual) {
-            $aset->status_id = $statusTerjual->id;
-            $aset->tanggal_update = now();
-            $aset->save();
+    // Periksa apakah aset ada dan statusnya "Tersedia"
+    if (!$aset || $aset->status->name !== 'Tersedia') {
+        return back()->with('error', 'Aset tidak ditemukan atau sudah tidak tersedia.');
     }
 
-        // Arahkan ke halaman detail dari transaksi yang BARU SAJA DIBUAT
-        return redirect()->route('transaksi.show', $transaksi->id)
-                         ->with('success', 'Transaksi berhasil dicatat! Anda bisa mencetak struk di sini.');
+    // Simpan data transaksi baru
+    $transaksi = Transaksi::create($validatedData);
+
+    // Update status aset menjadi "Terjual" dan tanggal update
+    $statusTerjual = Status::where('name', 'Terjual')->first();
+    if ($statusTerjual) {
+        $aset->status_id = $statusTerjual->id;
+        $aset->tanggal_update = now();
+        $aset->save();
     }
+
+    // Arahkan ke halaman detail transaksi dengan pesan sukses
+    return redirect()->route('transaksi.show', $transaksi->id)
+        ->with('success', 'Transaksi berhasil dicatat! Anda bisa mencetak struk di sini.');
+}
     /**
      * Menampilkan formulir untuk mengedit transaksi.
      */
