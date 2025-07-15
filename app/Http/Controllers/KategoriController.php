@@ -13,11 +13,11 @@ class KategoriController extends Controller
      */
     public function index()
     {
-     // Ambil semua kategori, lengkap dengan relasi ke aset dan status asetnya.
-    // Perhitungan akan kita lakukan di view.
-    $kategoris = Kategori::with('asets.status')->latest()->get();
+        // Ambil semua kategori, lengkap dengan relasi ke aset dan status asetnya.
+        // Perhitungan akan kita lakukan di view.
+        $kategoris = Kategori::with('asets.status')->latest()->get();
 
-    return view('kategori.index', compact('kategoris'));
+        return view('kategori.index', compact('kategoris'));
     }
 
        public function create()
@@ -26,30 +26,18 @@ class KategoriController extends Controller
         return view('kategori.create');
     }
 
-   public function store(Request $request)
+    public function store(Request $request)
     {
-        // Langkah 1: Validasi input dasar (tanpa aturan unique)
-        $request->validate([
-        'name' => 'required|string|max:255',
-        ]);
+        $request->validate(['name' => 'required|string|max:255|unique:kategoris,name']);
+        Kategori::create($request->all());
 
-        // Langkah 2: Pengecekan manual apakah nama kategori sudah ada
-        $existingKategori = Kategori::where('name', $request->name)->first();
+        // Jika ada permintaan redirect, kembali ke halaman sebelumnya. Jika tidak, ke halaman index.
+        if ($request->has('redirect_to')) {
+            return redirect($request->redirect_to)->with('success', 'Kategori baru berhasil ditambahkan.');
+        }
 
-        // Langkah 3: Jika sudah ada, kembalikan dengan pesan eror
-        if ($existingKategori) {
-        return back()->withInput()->withErrors(['name' => 'Nama kategori ini sudah ada.']);
+        return redirect()->route('kategori.index')->with('success', 'Kategori baru berhasil ditambahkan.');
     }
-
-        // Langkah 4: Jika aman, baru simpan data ke database
-        Kategori::create([
-        'name' => $request->name,
-        ]);
-
-        // Langkah 5: Kembalikan ke halaman index dengan pesan sukses
-        return redirect()->route('kategori.index')
-                     ->with('success', 'Kategori berhasil ditambahkan.');
-}
         /**
          * Display the specified resource.
         */

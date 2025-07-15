@@ -15,6 +15,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="kategori_id">Kategori</label>
+                    <a href="{{ route('kategori.create', ['redirect_to' => route('aset.create')]) }}" class="float-right small">(+ Tambah Baru)</a>
                     <select id="kategori_id" class="form-control" name="kategori_id" required>
                         <option selected disabled>Pilih Kategori...</option>
                         @foreach($kategoris as $kategori)
@@ -40,6 +41,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="status_id">Status</label>
+                    <a href="{{ route('status.create', ['redirect_to' => route('aset.create')]) }}" class="float-right small">(+ Tambah Baru)</a>
                     <select id="status_id" class="form-control" name="status_id" required>
                         <option selected disabled>Pilih Status...</option>
                         @foreach($statuses as $status)

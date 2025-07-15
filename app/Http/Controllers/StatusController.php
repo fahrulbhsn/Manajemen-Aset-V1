@@ -10,9 +10,9 @@ class StatusController extends Controller
 {
     public function index()
     {
-    // 'withCount('asets')' akan otomatis menghitung jumlah aset per status
-    $statuses = Status::withCount('asets')->latest()->get(); 
-    return view('status.index', compact('statuses'));
+        // 'withCount('asets')' akan otomatis menghitung jumlah aset per status
+        $statuses = Status::withCount('asets')->latest()->get(); 
+        return view('status.index', compact('statuses'));
     }
 
     public function create()
@@ -23,7 +23,12 @@ class StatusController extends Controller
     public function store(Request $request)
     {
         $request->validate(['name' => 'required|string|max:255|unique:statuses,name']);
-        Status::create(['name' => $request->name]);
+        Status::create($request->all());
+
+        // Jika ada permintaan redirect, kembali ke halaman sebelumnya. Jika tidak, ke halaman index.
+        if ($request->has('redirect_to')) {
+            return redirect($request->redirect_to)->with('success', 'Status baru berhasil ditambahkan.');
+        }
         return redirect()->route('status.index')->with('success', 'Status baru berhasil ditambahkan.');
     }
 
