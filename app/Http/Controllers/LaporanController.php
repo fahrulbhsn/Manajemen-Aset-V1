@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\TransaksiExport;
+use App\Exports\LaporanPenjualanExport;
+use App\Exports\LaporanPembelianExport;
+use App\Exports\LaporanLabaRugiExport;
 use App\Models\Aset;
 use PDF;
 
@@ -41,46 +43,53 @@ class LaporanController extends Controller
     /**
      * Cetak laporan penjualan ke Excel.
      */
-    public function cetak_excel(Request $request)
+    public function export_penjualan_excel(Request $request)
     {
-        // Logika untuk mengambil data (sama persis seperti sebelumnya)
         $tanggal_awal = $request->input('tanggal_awal');
         $tanggal_akhir = $request->input('tanggal_akhir');
-
         $query = Transaksi::query();
+        
         if ($tanggal_awal && $tanggal_akhir) {
-        $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
         }
+        
         $transaksis = $query->latest()->get();
-
-        // Mengunduh file Excel
-        return Excel::download(new TransaksiExport($transaksis), 'laporan-penjualan.xlsx');
+        
+        return Excel::download(new LaporanPenjualanExport($transaksis), 'laporan-penjualan.xlsx');
     }
 
-    public function pembelian(Request $request)
+    public function export_pembelian_excel(Request $request)
     {
-        // Ambil tanggal awal dan akhir dari filter, jika ada
         $tanggal_awal = $request->input('tanggal_awal');
         $tanggal_akhir = $request->input('tanggal_akhir');
-
-        // Mulai query ke tabel aset
         $query = Aset::query();
-
-        // Jika ada input tanggal, filter berdasarkan tanggal_beli
+        
         if ($tanggal_awal && $tanggal_akhir) {
             $query->whereBetween('tanggal_beli', [$tanggal_awal, $tanggal_akhir]);
         }
-
-        // Ambil data aset yang sudah difilter
+        
         $asets = $query->latest()->get();
-
-        // Hitung total pengeluaran dari harga beli aset yang difilter
-        $totalPengeluaran = $asets->sum('harga_beli');
-
-        // Kirim data ke view
-        return view('laporan.pembelian', compact('asets', 'totalPengeluaran'));
+        
+        return Excel::download(new LaporanPembelianExport($asets), 'laporan-pembelian.xlsx');
     }
 
+    public function export_laba_rugi_excel(Request $request)
+    {
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+        $query = Transaksi::query();
+        
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        }
+        
+        $transaksis = $query->with('aset')->latest()->get();
+        
+        return Excel::download(new LaporanLabaRugiExport($transaksis), 'laporan-laba-rugi.xlsx');
+    }
+    /**
+     * CETAK LAPORAN KE PDF
+     */
     public function cetak_penjualan_pdf(Request $request)
     {
         
@@ -98,9 +107,6 @@ class LaporanController extends Controller
         return $pdf->stream('laporan-penjualan-'.date('Y-m-d').'.pdf');
     }
 
-    /**
-     * CETAK LAPORAN PEMBELIAN KE PDF
-     */
     public function cetak_pembelian(Request $request)
     {
         // Logika ini sama dengan fungsi laporan pembelian
@@ -117,38 +123,45 @@ class LaporanController extends Controller
         return $pdf->stream('laporan-pembelian.pdf');
     }
 
+    public function pembelian(Request $request)
+    {
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+
+        $query = Aset::latest();
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_beli', [$tanggal_awal, $tanggal_akhir]);
+        }
+        $asets = $query->get();
+        $totalPengeluaran = $asets->sum('harga_beli');
+
+        return view('laporan.pembelian', compact('asets', 'totalPengeluaran', 'tanggal_awal', 'tanggal_akhir'));
+    }
     public function laba_rugi(Request $request)
     {
         // Ambil tanggal awal dan akhir dari filter, jika ada
         $tanggal_awal = $request->input('tanggal_awal');
         $tanggal_akhir = $request->input('tanggal_akhir');
+        // Mulai query ke tabel transaksi
+        $query = Transaksi::query();
+        // Terapkan filter tanggal jika ada
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        }
+        // Ambil semua transaksi yang relevan
+        $transaksis = $query->with('aset')->latest()->get();
+        // Hitung metrik keuangan
+        $totalPendapatan = $transaksis->sum('harga_jual_akhir');
+        $totalModal = $transaksis->sum(function($transaksi) {
+            // Pastikan aset masih ada untuk diambil harga belinya
+            return $transaksi->aset->harga_beli ?? 0;
+        });
+        $labaBersih = $totalPendapatan - $totalModal;
 
-    // Mulai query ke tabel transaksi
-    $query = Transaksi::query();
-
-    // Terapkan filter tanggal jika ada
-    if ($tanggal_awal && $tanggal_akhir) {
-        $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        // Kirim semua data ke view
+        return view('laporan.laba_rugi', compact('transaksis', 'totalPendapatan', 'totalModal', 'labaBersih'));
     }
 
-    // Ambil semua transaksi yang relevan
-    $transaksis = $query->with('aset')->latest()->get();
-
-    // Hitung metrik keuangan
-    $totalPendapatan = $transaksis->sum('harga_jual_akhir');
-    $totalModal = $transaksis->sum(function($transaksi) {
-        // Pastikan aset masih ada untuk diambil harga belinya
-        return $transaksi->aset->harga_beli ?? 0;
-    });
-    $labaBersih = $totalPendapatan - $totalModal;
-
-    // Kirim semua data ke view
-    return view('laporan.laba_rugi', compact('transaksis', 'totalPendapatan', 'totalModal', 'labaBersih'));
-    }
-
-    /**
-     * CETAK LAPORAN LABA RUGI KE PDF
-     */
     public function cetak_laba_rugi(Request $request)
     {
         // Logika ini sama dengan fungsi laporan laba rugi

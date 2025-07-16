@@ -2,12 +2,11 @@
 
 namespace App\Exports;
 
-use App\Models\Transaksi;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class TransaksiExport implements FromCollection, WithHeadings, WithMapping
+class LaporanLabaRugiExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $transaksis;
 
@@ -16,9 +15,6 @@ class TransaksiExport implements FromCollection, WithHeadings, WithMapping
         $this->transaksis = $transaksis;
     }
 
-    /**
-    * @return \Illuminate\Support\Collection
-    */
     public function collection()
     {
         return $this->transaksis;
@@ -27,26 +23,23 @@ class TransaksiExport implements FromCollection, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
-            'ID Transaksi',
             'Aset Terjual',
-            'Tanggal Jual',
-            'Harga Jual Akhir',
-            'Nama Pembeli',
-            'Kontak Pembeli',
-            'Dicatat oleh',
+            'Harga Jual',
+            'Harga Beli (Modal)',
+            'Laba'
         ];
     }
 
     public function map($transaksi): array
     {
+        $harga_beli = $transaksi->aset->harga_beli ?? 0;
+        $laba = $transaksi->harga_jual_akhir - $harga_beli;
+
         return [
-            'TRX-' . $transaksi->id,
             $transaksi->aset->nama_aset ?? 'Aset Dihapus',
-            $transaksi->tanggal_jual,
             $transaksi->harga_jual_akhir,
-            $transaksi->nama_pembeli,
-            $transaksi->kontak_pembeli,
-            $transaksi->user->name,
+            $harga_beli,
+            $laba,
         ];
     }
 }

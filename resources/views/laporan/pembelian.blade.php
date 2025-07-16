@@ -20,9 +20,12 @@
                 <div class="form-group col-md-2">
                     <button type="submit" class="btn btn-primary btn-block">Filter</button>
                 </div>
-                <a href="{{ route('laporan.pembelian.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
-                    <i class="fas fa-file-pdf"></i> Ekspor PDF
-                </a>
+                    <a href="{{ route('laporan.pembelian.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
+                        <i class="fas fa-file-pdf"></i> Ekspor PDF
+                    </a>
+                    <a href="{{ route('laporan.pembelian.excel', request()->query()) }}" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Ekspor Excel
+                    </a>
             </div>
         </form>
     </div>

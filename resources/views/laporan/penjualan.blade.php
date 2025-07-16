@@ -20,14 +20,13 @@
                 <div class="form-group col-md-2">
                     <button type="submit" class="btn btn-primary btn-block">Filter</button>
                 </div>
-
-<a href="{{ route('laporan.penjualan.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
-    <i class="fas fa-file-pdf"></i> Ekspor PDF
-</a>
-
-                <div class="form-group col-md-2">
-                    <a href="{{ route('laporan.cetak_excel', request()->query()) }}" class="btn btn-success btn-block">Ekspor Excel</a>
-                </div>
+                    <a href="{{ route('laporan.penjualan.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
+                        <i class="fas fa-file-pdf"></i> Ekspor PDF
+                    </a>
+                    <a href="{{ route('laporan.penjualan.excel', request()->query()) }}" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Ekspor Excel
+                    </a>
+            </div>
         </form>
     </div>
 </div>

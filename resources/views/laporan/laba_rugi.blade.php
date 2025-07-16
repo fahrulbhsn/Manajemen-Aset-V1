@@ -25,6 +25,9 @@
                     <a href="{{ route('laporan.laba_rugi.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
                         <i class="fas fa-file-pdf"></i> Ekspor PDF
                     </a>
+                    <a href="{{ route('laporan.laba_rugi.excel', request()->query()) }}" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Ekspor Excel
+                    </a>
                 </div>
             </form>
         </div>

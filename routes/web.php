@@ -52,7 +52,10 @@ use App\Models\Transaksi;
         Route::get('/laporan/penjualan/cetak-pdf', [LaporanController::class, 'cetak_penjualan_pdf'])->name('laporan.penjualan.pdf');
         Route::get('/laporan/pembelian/pdf', [LaporanController::class, 'cetak_pembelian'])->name('laporan.pembelian.pdf');
         Route::get('/laporan/laba-rugi/pdf', [LaporanController::class, 'cetak_laba_rugi'])->name('laporan.laba_rugi.pdf');
-        Route::get('/laporan/penjualan/excel', [LaporanController::class, 'cetak_excel'])->name('laporan.cetak_excel');
+        Route::get('/laporan/penjualan/excel', [LaporanController::class, 'export_penjualan_excel'])->name('laporan.penjualan.excel');
+        Route::get('/laporan/pembelian/excel', [LaporanController::class, 'export_pembelian_excel'])->name('laporan.pembelian.excel');
+        Route::get('/laporan/laba-rugi/excel', [LaporanController::class, 'export_laba_rugi_excel'])->name('laporan.laba_rugi.excel');
+
         // Rute untuk cetak struk transaksi
         Route::get('/transaksi/{transaksi}/cetak', [App\Http\Controllers\TransaksiController::class, 'cetak_struk'])->name('transaksi.cetak_struk');
         Route::resource('transaksi', App\Http\Controllers\TransaksiController::class);
