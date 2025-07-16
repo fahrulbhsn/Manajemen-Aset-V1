@@ -11,14 +11,17 @@
 {{-- Kartu untuk tabel transaksi --}}
 <div class="card shadow mb-4">
     {{-- Header kartu dengan tombol tambah transaksi --}}
-    <div class="card-header py-3">
-        <a href="{{ route('transaksi.create') }}" class="btn btn-primary btn-icon-split">
-            <span class="icon text-white-50">
-                <i class="fas fa-plus"></i>
-            </span>
-            <span class="text">Tambah Transaksi Baru</span>
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <h6 class="m-0 font-weight-bold text-primary">Daftar Transaksi</h6>
+    <div>
+        <a href="{{ route('transaksi.index') }}" class="btn btn-secondary btn-sm" title="Reset Tampilan">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </a>
+        <a href="{{ route('transaksi.create') }}" class="btn btn-primary btn-sm ml-2">
+            <i class="fas fa-plus"></i> Tambah Transaksi Baru
         </a>
     </div>
+</div>
     {{-- Body kartu berisi alert dan tabel --}}
     <div class="card-body">
         {{-- Menampilkan pesan sukses jika ada --}}

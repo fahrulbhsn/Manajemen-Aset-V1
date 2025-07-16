@@ -20,12 +20,13 @@
                         <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}">
                     </div>
                     <div class="form-group col-md-2">
-                        <button type="submit" class="btn btn-primary btn-block">Filter</button>
+                            <button type="submit" class="btn btn-primary" style="width: 48%;">Filter</button>
+                            <a href="{{ route('laporan.penjualan') }}" class="btn btn-secondary" style="width: 48%;">Refresh</a>
                     </div>
-                    <a href="{{ route('laporan.laba_rugi.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
+                    <a href="{{ route('laporan.penjualan.pdf', request()->query()) }}" class="btn btn-danger mr-2" target="_blank">
                         <i class="fas fa-file-pdf"></i> Ekspor PDF
                     </a>
-                    <a href="{{ route('laporan.laba_rugi.excel', request()->query()) }}" class="btn btn-success">
+                    <a href="{{ route('laporan.penjualan.excel', request()->query()) }}" class="btn btn-success mr-2">
                         <i class="fas fa-file-excel"></i> Ekspor Excel
                     </a>
                 </div>

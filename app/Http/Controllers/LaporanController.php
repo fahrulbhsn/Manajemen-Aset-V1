@@ -18,26 +18,49 @@ class LaporanController extends Controller
      */
     public function penjualan(Request $request)
     {
-    // Ambil tanggal awal dan akhir dari request, jika ada
-    $tanggal_awal = $request->input('tanggal_awal');
-    $tanggal_akhir = $request->input('tanggal_akhir');
-
-    // Mulai query ke tabel transaksi
-    $query = Transaksi::query();
-
-    // Jika ada input tanggal, filter datanya
-    if ($tanggal_awal && $tanggal_akhir) {
-        $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        // Ambil tanggal awal dan akhir dari request, jika ada
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+        // Mulai query ke tabel transaksi
+        $query = Transaksi::query();
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        } // Jika ada input tanggal, filter datanya
+        $transaksis = $query->latest()->get(); // Ambil data yang sudah difilter
+        $totalPendapatan = $transaksis->sum('harga_jual_akhir'); // Hitung total pendapatan HANYA dari data yang sudah difilter
+        return view('laporan.penjualan', compact('transaksis', 'totalPendapatan')); // Kirim data ke view
     }
 
-    // Ambil data yang sudah difilter
-    $transaksis = $query->latest()->get();
+    public function pembelian(Request $request)
+    {
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
 
-    // Hitung total pendapatan HANYA dari data yang sudah difilter
-    $totalPendapatan = $transaksis->sum('harga_jual_akhir');
+        $query = Aset::latest();
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_beli', [$tanggal_awal, $tanggal_akhir]);
+        }
+        $asets = $query->get();
+        $totalPengeluaran = $asets->sum('harga_beli');
 
-    // Kirim data ke view
-    return view('laporan.penjualan', compact('transaksis', 'totalPendapatan'));
+        return view('laporan.pembelian', compact('asets', 'totalPengeluaran', 'tanggal_awal', 'tanggal_akhir'));
+    }
+
+    public function laba_rugi(Request $request)
+    {
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+        $query = Transaksi::query();
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        }
+        $transaksis = $query->with('aset')->latest()->get();
+        $totalPendapatan = $transaksis->sum('harga_jual_akhir');
+        $totalModal = $transaksis->sum(function($transaksi) {
+            return $transaksi->aset->harga_beli ?? 0;
+        });
+        $labaBersih = $totalPendapatan - $totalModal;
+        return view('laporan.laba_rugi', compact('transaksis', 'totalPendapatan', 'totalModal', 'labaBersih'));
     }
 
     /**
@@ -121,45 +144,6 @@ class LaporanController extends Controller
         // Buat PDF
         $pdf = PDF::loadView('laporan.pembelian_pdf', compact('asets', 'tanggal_awal', 'tanggal_akhir'));
         return $pdf->stream('laporan-pembelian.pdf');
-    }
-
-    public function pembelian(Request $request)
-    {
-        $tanggal_awal = $request->input('tanggal_awal');
-        $tanggal_akhir = $request->input('tanggal_akhir');
-
-        $query = Aset::latest();
-        if ($tanggal_awal && $tanggal_akhir) {
-            $query->whereBetween('tanggal_beli', [$tanggal_awal, $tanggal_akhir]);
-        }
-        $asets = $query->get();
-        $totalPengeluaran = $asets->sum('harga_beli');
-
-        return view('laporan.pembelian', compact('asets', 'totalPengeluaran', 'tanggal_awal', 'tanggal_akhir'));
-    }
-    public function laba_rugi(Request $request)
-    {
-        // Ambil tanggal awal dan akhir dari filter, jika ada
-        $tanggal_awal = $request->input('tanggal_awal');
-        $tanggal_akhir = $request->input('tanggal_akhir');
-        // Mulai query ke tabel transaksi
-        $query = Transaksi::query();
-        // Terapkan filter tanggal jika ada
-        if ($tanggal_awal && $tanggal_akhir) {
-            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
-        }
-        // Ambil semua transaksi yang relevan
-        $transaksis = $query->with('aset')->latest()->get();
-        // Hitung metrik keuangan
-        $totalPendapatan = $transaksis->sum('harga_jual_akhir');
-        $totalModal = $transaksis->sum(function($transaksi) {
-            // Pastikan aset masih ada untuk diambil harga belinya
-            return $transaksi->aset->harga_beli ?? 0;
-        });
-        $labaBersih = $totalPendapatan - $totalModal;
-
-        // Kirim semua data ke view
-        return view('laporan.laba_rugi', compact('transaksis', 'totalPendapatan', 'totalModal', 'labaBersih'));
     }
 
     public function cetak_laba_rugi(Request $request)
