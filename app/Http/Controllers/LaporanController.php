@@ -125,7 +125,7 @@ class LaporanController extends Controller
         $transaksis = $query->with('aset')->latest()->get();
         $totalPendapatan = $transaksis->sum('harga_jual_akhir');
 
-        // Membuat PDF dari view 'laporan.penjualan_pdf'
+        // BuatPDF
         $pdf = PDF::loadView('laporan.penjualan_pdf', compact('transaksis', 'totalPendapatan', 'tanggal_awal', 'tanggal_akhir'));
         return $pdf->stream('laporan-penjualan-'.date('Y-m-d').'.pdf');
     }
