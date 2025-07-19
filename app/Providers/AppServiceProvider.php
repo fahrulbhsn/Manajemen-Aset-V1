@@ -20,7 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // SECARA SPESIFIK MEMBERITAHU LARAVEL UNTUK MENGGUNAKAN GAYA BOOTSTRAP 4
-        Paginator::useBootstrapFour();
+    // Secara paksa memberitahu Laravel untuk menggunakan view kita
+    Paginator::defaultView('vendor.pagination.bootstrap-4');
+    Paginator::defaultSimpleView('vendor.pagination.bootstrap-4');
     }
 }
