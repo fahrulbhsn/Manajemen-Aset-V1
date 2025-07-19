@@ -140,9 +140,10 @@ class LaporanController extends Controller
             $query->whereBetween('tanggal_beli', [$tanggal_awal, $tanggal_akhir]);
         }
         $asets = $query->get();
+        $totalPengeluaran = $asets->sum('harga_beli');
 
         // Buat PDF
-        $pdf = PDF::loadView('laporan.pembelian_pdf', compact('asets', 'tanggal_awal', 'tanggal_akhir'));
+        $pdf = PDF::loadView('laporan.pembelian_pdf', compact('asets', 'totalPengeluaran', 'tanggal_awal', 'tanggal_akhir'));
         return $pdf->stream('laporan-pembelian.pdf');
     }
 
