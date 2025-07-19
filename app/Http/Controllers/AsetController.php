@@ -22,6 +22,7 @@ class AsetController extends Controller
         $kategori_id = $request->input('kategori_id');
         $status_id = $request->input('status_id');
         $status_name = $request->input('status_name');
+        $per_page = $request->input('per_page', 10);
 
         // Memulai query, selalu sertakan relasi untuk efisiensi
         $query = Aset::with(['kategori', 'status']);
@@ -79,9 +80,10 @@ class AsetController extends Controller
             $query->orderBy('id', 'desc');
         }
 
-        $asets = $query->paginate(10);
+        // Menggunakan paginate dengan jumlah baris sesuai input per_page
+        $asets = $query->paginate($per_page)->withQueryString();
 
-        return view('aset.index', compact('asets', 'search', 'sort', 'direction'));
+        return view('aset.index', compact('asets', 'search', 'sort', 'direction', 'per_page'));
     }
 
     /**

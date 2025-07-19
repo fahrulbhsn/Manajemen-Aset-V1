@@ -39,11 +39,28 @@
     <div class="card-body">
         
         {{-- Form Pencarian --}}
-        <div class="row">
-            <div class="col-md-12 mb-3">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <form action="{{ route('aset.index') }}" method="GET" class="form-inline">
+                    <label for="per_page" class="mr-2">Tampilkan:</label>
+                    <select name="per_page" id="per_page" class="form-control mr-2" onchange="this.form.submit()">
+                        <option value="10" {{ ($per_page ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                        <option value="20" {{ ($per_page ?? 10) == 20 ? 'selected' : '' }}>20</option>
+                        <option value="50" {{ ($per_page ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ ($per_page ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                    <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                    <input type="hidden" name="sort" value="{{ $sort ?? '' }}">
+                    <input type="hidden" name="direction" value="{{ $direction ?? '' }}">
+                </form>
+            </div>
+            <div class="col-md-8">
                 <form action="{{ route('aset.index') }}" method="GET">
                     <div class="input-group">
                         <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan Nama Aset, Kategori, atau Status..." value="{{ $search ?? '' }}">
+                        <input type="hidden" name="per_page" value="{{ $per_page ?? 10 }}">
+                        <input type="hidden" name="sort" value="{{ $sort ?? '' }}">
+                        <input type="hidden" name="direction" value="{{ $direction ?? '' }}">
                         <div class="input-group-append">
                             <button class="btn btn-primary" type="submit">Cari</button>
                         </div>
