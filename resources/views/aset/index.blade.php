@@ -57,28 +57,16 @@
             <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">
-                            <span>No</span>
-                            {{-- Fitur sortir untuk "No" telah dihilangkan --}}
-                        </th>
-                        <th style="width: 12%;">Foto</th>
+                        <th>No</th>
+                        <th>Foto</th>
                         <th>Nama Aset</th>
-                        <th style="width: 15%;">
-                            <span>Kategori</span>
-                            {{-- Fitur sortir untuk "Kategori" telah dihilangkan --}}
-                        </th>
-                        <th style="width: 12%;">
-                            <span>Status</span>
-                            {{-- Fitur sortir untuk Status tetap ada --}}
-                            <a href="{{ route('aset.index', ['sort' => 'status', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}">
-                                <i class="fas fa-sort"></i>
-                            </a>
-                        </th>
+                        <th>Kategori</th>
+                        <th>Status</th>
                         <th>Harga Beli</th>
                         <th>Harga Jual</th>
-                        <th>Tgl Beli</th>
-                        <th>Tgl Update</th> {{-- Kolom Tgl Update ditampilkan kembali --}}
-                        <th style="width: 18%;">Aksi</th>
+                        <th>Tanggal Beli</th>
+                        <th>Tanggal Update</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
