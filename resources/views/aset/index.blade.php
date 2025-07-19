@@ -76,9 +76,11 @@
                     <tr>
                         <th>No</th>
                         <th>Foto</th>
-                        <th>Nama Aset</th>
+                        <th style="width:30%;">Nama Aset</th>
                         <th>Kategori</th>
-                        <th>Status</th>
+                        <th style="width:5%;" class="text-center">
+                            <span>Status</span>
+                        </th>
                         <th>Harga Beli</th>
                         <th>Harga Jual</th>
                         <th>Tanggal Beli</th>
@@ -99,7 +101,7 @@
                             </td>
                             <td>{{ $aset->nama_aset }}</td>
                             <td>{{ $aset->kategori->name }}</td>
-                            <td>
+                            <td class="text-center">
                                 @if($aset->status->name == 'Tersedia')
                                     <span class="badge badge-success">{{ $aset->status->name }}</span>
                                 @elseif($aset->status->name == 'Perbaikan')
