@@ -94,7 +94,16 @@
                             </td>
                             <td>{{ $aset->nama_aset }}</td>
                             <td>{{ $aset->kategori->name }}</td>
-                            <td>{{ $aset->status->name }}</td>
+                            <td>
+                                @if($aset->status->name == 'Tersedia')
+                                    <span class="badge badge-success">{{ $aset->status->name }}</span>
+                                @elseif($aset->status->name == 'Perbaikan')
+                                    <span class="badge badge-warning">{{ $aset->status->name }}</span>
+                                @else
+                                    {{-- Untuk status 'Terjual' atau status lainnya --}}
+                                    <span class="badge badge-danger">{{ $aset->status->name }}</span>
+                                @endif
+                            </td>
                             <td>Rp {{ number_format($aset->harga_beli, 0, ',', '.') }}</td>
                             <td>Rp {{ number_format($aset->harga_jual, 0, ',', '.') }}</td>
                             <td>{{ \Carbon\Carbon::parse($aset->tanggal_beli)->format('d-m-Y') }}</td>
