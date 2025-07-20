@@ -74,18 +74,19 @@
             <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Foto</th>
+                        <th class="text-center">No</th>
+                        <th class="text-center">Foto</th>
                         <th style="width:30%;">Nama Aset</th>
-                        <th>Kategori</th>
+                        <th class="text-center">Kategori</th>
                         <th style="width:5%;" class="text-center">
                             <span>Status</span>
                         </th>
-                        <th>Harga Beli</th>
-                        <th>Harga Jual</th>
-                        <th>Tanggal Beli</th>
-                        <th>Tanggal Update</th>
-                        <th>Aksi</th>
+                        <th class="text-center">Harga Beli</th>
+                        <th class="text-center">Harga Jual</th>
+                        <th style="width:8%;" class="text-center">Tanggal Beli</th>
+                        <th style="width:10%;" class="text-center">Tanggal Update</th>
+                        <th style="width:9%;" class="text-center">
+                            <span>Aksi</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,11 +112,11 @@
                                     <span class="badge badge-danger">{{ $aset->status->name }}</span>
                                 @endif
                             </td>
-                            <td>Rp {{ number_format($aset->harga_beli, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($aset->harga_jual, 0, ',', '.') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($aset->tanggal_beli)->format('d-m-Y') }}</td>
-                            <td>{{ $aset->tanggal_update ? \Carbon\Carbon::parse($aset->tanggal_update)->format('d-m-Y') : '-' }}</td>
-                            <td>
+                            <td class="text-center">Rp {{ number_format($aset->harga_beli, 0, ',', '.') }}</td>
+                            <td class="text-center">Rp {{ number_format($aset->harga_jual, 0, ',', '.') }}</td>
+                            <td class="text-center">{{ \Carbon\Carbon::parse($aset->tanggal_beli)->format('d-m-Y') }}</td>
+                            <td class="text-center">{{ $aset->tanggal_update ? \Carbon\Carbon::parse($aset->tanggal_update)->format('d-m-Y') : '-' }}</td>
+                            <td class="text-center">
                                 <a href="{{ route('aset.show', $aset->id) }}" class="btn btn-info btn-circle btn-sm" title="Detail"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route('aset.edit', $aset->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit"><i class="fas fa-edit"></i></a>
                                 <form action="{{ route('aset.destroy', $aset->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin?');">
