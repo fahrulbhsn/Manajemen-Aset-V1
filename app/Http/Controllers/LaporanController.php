@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LaporanPenjualanExport;
 use App\Exports\LaporanPembelianExport;
 use App\Exports\LaporanLabaRugiExport;
@@ -61,54 +60,6 @@ class LaporanController extends Controller
         });
         $labaBersih = $totalPendapatan - $totalModal;
         return view('laporan.laba_rugi', compact('transaksis', 'totalPendapatan', 'totalModal', 'labaBersih'));
-    }
-
-    /**
-     * Cetak laporan penjualan ke Excel.
-     */
-    public function export_penjualan_excel(Request $request)
-    {
-        $tanggal_awal = $request->input('tanggal_awal');
-        $tanggal_akhir = $request->input('tanggal_akhir');
-        $query = Transaksi::query();
-        
-        if ($tanggal_awal && $tanggal_akhir) {
-            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
-        }
-        
-        $transaksis = $query->latest()->get();
-        
-        return Excel::download(new LaporanPenjualanExport($transaksis), 'laporan-penjualan.xlsx');
-    }
-
-    public function export_pembelian_excel(Request $request)
-    {
-        $tanggal_awal = $request->input('tanggal_awal');
-        $tanggal_akhir = $request->input('tanggal_akhir');
-        $query = Aset::query();
-        
-        if ($tanggal_awal && $tanggal_akhir) {
-            $query->whereBetween('tanggal_beli', [$tanggal_awal, $tanggal_akhir]);
-        }
-        
-        $asets = $query->latest()->get();
-        
-        return Excel::download(new LaporanPembelianExport($asets), 'laporan-pembelian.xlsx');
-    }
-
-    public function export_laba_rugi_excel(Request $request)
-    {
-        $tanggal_awal = $request->input('tanggal_awal');
-        $tanggal_akhir = $request->input('tanggal_akhir');
-        $query = Transaksi::query();
-        
-        if ($tanggal_awal && $tanggal_akhir) {
-            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
-        }
-        
-        $transaksis = $query->with('aset')->latest()->get();
-        
-        return Excel::download(new LaporanLabaRugiExport($transaksis), 'laporan-laba-rugi.xlsx');
     }
     /**
      * CETAK LAPORAN KE PDF
