@@ -89,13 +89,9 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 {{-- Form untuk menghapus transaksi --}}
-                                <form action="{{ route('transaksi.destroy', $transaksi->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin ingin menghapus transaksi ini? Status aset akan dikembalikan menjadi Tersedia.');">
-                                    @csrf {{-- Token CSRF untuk keamanan --}}
-                                    @method('DELETE') {{-- Metode HTTP DELETE --}}
-                                    <button type="submit" class="btn btn-danger btn-circle btn-sm" title="Hapus Transaksi">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-circle btn-sm ml-2" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('transaksi.destroy', $transaksi->id) }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                     @empty

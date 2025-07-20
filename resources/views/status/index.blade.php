@@ -44,13 +44,9 @@
                                 <a href="{{ route('status.edit', $status->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit Status">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('status.destroy', $status->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-circle btn-sm" title="Hapus Status">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-circle btn-sm ml-2" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('status.destroy', $status->id) }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                     @empty
