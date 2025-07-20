@@ -25,7 +25,17 @@
                             <tr>
                                 <td>{{ $log->created_at->format('d M Y, H:i:s') }}</td>
                                 <td>{{ $log->user->name ?? 'User Dihapus' }}</td>
-                                <td>{{ ucfirst($log->action) }}</td>
+                                <td>
+                                    @if($log->action == 'menambah')
+                                        <span class="badge badge-success">{{ ucfirst($log->action) }}</span>
+                                    @elseif($log->action == 'mengubah')
+                                        <span class="badge badge-warning">{{ ucfirst($log->action) }}</span>
+                                    @elseif($log->action == 'menghapus')
+                                        <span class="badge badge-danger">{{ ucfirst($log->action) }}</span>
+                                    @else
+                                        <span class="badge badge-info">{{ ucfirst($log->action) }}</span>
+                                    @endif
+                                </td>
                                 <td>{{ $log->description }}</td>
                             </tr>
                         @empty
