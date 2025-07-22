@@ -26,16 +26,16 @@ use App\Models\Transaksi;
     // Rute-rute yang Membutuhkan Login
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', function () {
-        $asetTersedia = Aset::whereHas('status', function($q){ $q->where('name', 'Tersedia'); })->count();
-        $asetTerjual = Aset::whereHas('status', function($q){ $q->where('name', 'Terjual'); })->count();
-        $asetPerbaikan = Aset::whereHas('status', function($q){ $q->where('name', 'Perbaikan'); })->count();
-        $transaksiTerbaru = Transaksi::with(['aset', 'user'])->latest()->take(5)->get();
-        $penjualanSeminggu = Transaksi::where('tanggal_jual', '>=', now()->subDays(7))
-            ->selectRaw('DATE(tanggal_jual) as tanggal, COUNT(*) as jumlah')
-            ->groupBy('tanggal')->orderBy('tanggal', 'asc')->get();
-        $labels = $penjualanSeminggu->pluck('tanggal')->map(fn($date) => \Carbon\Carbon::parse($date)->format('d M'));
-        $data = $penjualanSeminggu->pluck('jumlah');
-        return view('dashboard', compact('asetTersedia', 'asetTerjual', 'asetPerbaikan', 'transaksiTerbaru', 'labels', 'data'));})->name('dashboard');
+            $asetTersedia = Aset::whereHas('status', function($q){ $q->where('name', 'Tersedia'); })->count();
+            $asetTerjual = Aset::whereHas('status', function($q){ $q->where('name', 'Terjual'); })->count();
+            $asetPerbaikan = Aset::whereHas('status', function($q){ $q->where('name', 'Perbaikan'); })->count();
+            $transaksiTerbaru = Transaksi::with(['aset', 'user'])->latest()->take(5)->get();
+            $penjualanSeminggu = Transaksi::where('tanggal_jual', '>=', now()->subDays(7))
+                ->selectRaw('DATE(tanggal_jual) as tanggal, COUNT(*) as jumlah')
+                ->groupBy('tanggal')->orderBy('tanggal', 'asc')->get();
+            $labels = $penjualanSeminggu->pluck('tanggal')->map(fn($date) => \Carbon\Carbon::parse($date)->format('d M'));
+            $data = $penjualanSeminggu->pluck('jumlah');
+            return view('dashboard', compact('asetTersedia', 'asetTerjual', 'asetPerbaikan', 'transaksiTerbaru', 'labels', 'data'));})->name('dashboard');
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

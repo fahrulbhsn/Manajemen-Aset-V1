@@ -143,7 +143,3 @@
 </div>
 
 @endsection
-
-@push('scripts')
-{{-- Kita bisa menambahkan skrip khusus untuk halaman ini jika diperlukan nanti --}}
-@endpush

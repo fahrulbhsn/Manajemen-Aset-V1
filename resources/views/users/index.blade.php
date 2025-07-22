@@ -42,7 +42,7 @@
                                 <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin ingin menghapus user ini?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-circle btn-sm">
+                                    <button type="button" class="btn btn-danger btn-circle btn-sm ml-2" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('users.destroy', $user->id) }}" title="Hapus User">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
