@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Aset;
 use App\Models\Kategori;
 use App\Models\Status;
-use Illuminate\Http\Request; // Pastikan ini ada
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
 class AsetController extends Controller
@@ -23,15 +23,9 @@ class AsetController extends Controller
         $status_id = $request->input('status_id');
         $status_name = $request->input('status_name');
         $per_page = $request->input('per_page', 10);
-
-        // Memulai query, selalu sertakan relasi untuk efisiensi
         $query = Aset::with(['kategori', 'status']);
 
-        // ======================================================
-        // LOGIKA FILTER YANG DISEMPURNAKAN
-        // ======================================================
-
-        // 1. Filter dari Pencarian Canggih
+        //Filter dari Pencarian
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('nama_aset', 'like', '%' . $search . '%')
@@ -45,17 +39,17 @@ class AsetController extends Controller
             });
         }
 
-        // 2. Filter dari Halaman Status (berdasarkan ID)
+        //Filter dari Halaman Status (berdasarkan ID)
         if ($status_id) {
             $query->where('status_id', $status_id);
         }
 
-        // 3. Filter dari Halaman Kategori (berdasarkan ID)
+        //Filter dari Halaman Kategori (berdasarkan ID)
         if ($kategori_id) {
             $query->where('kategori_id', $kategori_id);
         }
 
-        // 4. Filter tambahan dari Halaman Kategori (berdasarkan nama 'Tersedia')
+        //Filter tambahan dari Halaman Kategori (berdasarkan nama 'Tersedia')
         if ($status_name) {
             $query->whereHas('status', function($q) use ($status_name) {
                 $q->where('name', $status_name);
@@ -76,7 +70,6 @@ class AsetController extends Controller
                 $query->orderBy($sort, $direction);
             }
         } else {
-            // Urutan default
             $query->orderBy('id', 'desc');
         }
 
@@ -87,11 +80,11 @@ class AsetController extends Controller
     }
 
     /**
-     * Mencari aset untuk Select2 AJAX.
+     * Mencari aset untuk 
      */
     public function search(Request $request)
     {
-        // Mengambil parameter pencarian dari Select2 (menggunakan 'term' sesuai standar Select2)
+        // Mengambil parameter pencarian dari Select2 (menggunakan 'term' sesuai )
         $search = $request->input('term');
 
         $asets = Aset::where('nama_aset', 'LIKE', "%{$search}%")
