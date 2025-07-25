@@ -42,6 +42,22 @@
         <div class="row mb-3">
             <div class="col-md-4">
                 <form action="{{ route('aset.index') }}" method="GET" class="form-inline">
+                    @if(request('kategori_id'))
+                        <input type="hidden" name="kategori_id" value="{{ request('kategori_id') }}">
+                    @endif
+                    @if(request('status_id'))
+                        <input type="hidden" name="status_id" value="{{ request('status_id') }}">
+                    @endif
+                    @if(request('status_name'))
+                        <input type="hidden" name="status_name" value="{{ request('status_name') }}">
+                    @endif
+                    @if(request('search'))
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                    @endif
+                    @if(request('sort'))
+                        <input type="hidden" name="sort" value="{{ request('sort') }}">
+                        <input type="hidden" name="direction" value="{{ request('direction') }}">
+                    @endif
                     <label for="per_page" class="mr-2">Tampilkan:</label>
                     <select name="per_page" id="per_page" class="form-control mr-2" onchange="this.form.submit()">
                         <option value="10" {{ ($per_page ?? 10) == 10 ? 'selected' : '' }}>10</option>
