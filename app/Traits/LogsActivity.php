@@ -34,14 +34,16 @@ trait LogsActivity
      * @param string $action The action performed (e.g., 'menambah', 'mengubah', 'menghapus')
      * @param mixed $model The model instance being acted upon
      */
-    protected static function logActivity($action, $model)
-    {
-        // Create a new activity log entry
+protected static function logActivity($action, $model)
+{
+    // Cek jika ada user yang login sebelum mencatat
+    if (Auth::check()) {
         ActivityLog::create([
             'user_id' => Auth::id(),
             'action' => $action,
-            // Membuat deskripsi dinamis, contoh: "mengubah kategori 'Laptop Second'"
-            'description' => "{$action} " . strtolower(class_basename($model)) . " '" . ($model->name ?? $model->nama_aset ?? 'ID: ' . $model->id) . "'",
+            // Deskripsi disederhanakan tanpa menampilkan ID
+            'description' => "{$action} " . strtolower(class_basename($model)) . " '" . ($model->name ?? $model->nama_aset ?? 'data dengan ID: '.$model->id) . "'",
         ]);
     }
+}
 }

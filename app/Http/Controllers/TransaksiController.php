@@ -125,6 +125,12 @@ class TransaksiController extends Controller
 
         $transaksi->update($request->all());
 
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'mengubah',
+            'description' => "Mengubah transaksi 'TRX-{$transaksi->id}'"
+        ]);
+
         return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil diperbarui.');
     }
 
@@ -150,7 +156,7 @@ class TransaksiController extends Controller
         //Hapus data transaksi
         $transaksi->delete();
 
-        //Catat log aktivitas menggunakan informasi yang sudah kita simpan
+        //Catat log aktivitas
         \App\Models\ActivityLog::create([
             'user_id' => Auth::id(),
             'action' => 'menghapus',

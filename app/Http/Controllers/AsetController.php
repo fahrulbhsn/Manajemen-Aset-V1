@@ -139,15 +139,21 @@ class AsetController extends Controller
 
         $data = $request->all();
 
-        // LOGIKA UNGGAH FOTO DIMULAI DI SINI (untuk membuat aset baru)
+        // UNGGAH FOTO
         if ($request->hasFile('foto')) {
             $namaFile = time() . '.' . $request->foto->extension();
             $request->foto->move(public_path('foto_aset'), $namaFile);
             $data['foto'] = $namaFile;
         }
-        // LOGIKA UNGGAH FOTO SELESAI
 
-        Aset::create($data);
+        $aset = Aset::create($data);
+
+        // Log menambah aset
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menambah',
+            'description' => "Menambah aset baru '{$aset->nama_aset}'"
+        ]);
 
         return redirect()->route('aset.index')->with('success', 'Aset baru berhasil ditambahkan.');
     }
@@ -212,6 +218,13 @@ class AsetController extends Controller
 
         $aset->update($data);
 
+        // Log mengedit aset
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'mengubah',
+            'description' => "Mengubah data aset '{$aset->nama_aset}'"
+        ]);
+
         return redirect()->route('aset.index')->with('success', 'Aset berhasil diperbarui.');
     }
 
@@ -220,11 +233,6 @@ class AsetController extends Controller
      */
     public function destroy(Aset $aset)
     {
-        \App\Models\ActivityLog::create([
-            'user_id' => Auth::id(),
-            'action' => 'menghapus',
-            'description' => "Menghapus aset '{$aset->nama_aset}' (ID: {$aset->id})"
-    ]);
         // Hapus transaksi terkait
         $aset->transaksis()->delete();
 
@@ -235,7 +243,13 @@ class AsetController extends Controller
 
         // Hapus aset
         $aset->delete();
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menghapus',
+            'description' => "Menghapus aset '{$aset->nama_aset}'"
+        ]);
 
-        return redirect()->route('aset.index')->with('success', 'Aset dan semua riwayat transaksinya berhasil dihapus.');
+        return redirect()->route('aset.index')
+                         ->with('success', 'Aset dan semua riwayat transaksinya berhasil dihapus.');
     }
 }
