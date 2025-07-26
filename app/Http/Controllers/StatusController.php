@@ -46,7 +46,17 @@ class StatusController extends Controller
 
     public function destroy(Status $status)
     {
-        $status->delete();
-        return redirect()->route('status.index')->with('success', 'Status berhasil dihapus.');
+    // Cek apakah ada aset yang masih menggunakan status ini
+    if ($status->asets()->count() > 0) {
+        // Jika ada, kembalikan dengan pesan eror
+        return redirect()->route('status.index')
+                         ->with('error', 'Status "'. $status->name .'" tidak dapat dihapus karena masih digunakan oleh aset.');
+    }
+
+    // Jika tidak ada aset yang menggunakan, lanjutkan proses hapus
+    $status->delete();
+
+    return redirect()->route('status.index')
+                     ->with('success', 'Status berhasil dihapus.');
     }
 }

@@ -80,9 +80,17 @@ class KategoriController extends Controller
      */
     public function destroy(Kategori $kategori)
     {
-        $kategori->delete();
-
+    // Cek apakah ada aset yang masih menggunakan kategori ini
+    if ($kategori->asets()->count() > 0) {
+        // Jika ada, kembalikan dengan pesan eror
         return redirect()->route('kategori.index')
-                         ->with('success', 'Kategori berhasil dihapus.');
+                         ->with('error', 'Kategori "'. $kategori->name .'" tidak dapat dihapus karena masih digunakan oleh aset.');
+    }
+
+    // Jika tidak ada aset yang menggunakan, lanjutkan proses hapus
+    $kategori->delete();
+
+    return redirect()->route('kategori.index')
+                     ->with('success', 'Kategori berhasil dihapus.');
     }
 }
