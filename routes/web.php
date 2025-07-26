@@ -60,6 +60,8 @@ use App\Models\Transaksi;
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::resource('users', UserController::class);
         Route::get('/aktivitas', [ActivityLogController::class, 'index'])->name('aktivitas.index');
+        Route::put('/users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
+        Route::put('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
     });
 });
 

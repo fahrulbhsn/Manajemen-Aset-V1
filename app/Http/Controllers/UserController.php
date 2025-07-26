@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    // ... (fungsi index dan create Anda sudah ada di sini) ...
-
     public function index()
     {
         $users = User::where('id', '!=', auth()->id())->latest()->get();
@@ -54,43 +53,61 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-            // 1. Validasi data yang masuk
     $request->validate([
         'name' => 'required|string|max:255',
-        // Pastikan validasi email mengabaikan email user saat ini
         'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-        // Peran harus salah satu dari 'admin' atau 'editor'
         'role' => 'required|string|in:admin,editor',
-        // Password tidak wajib diisi (nullable) saat edit
         'password' => 'nullable|string|min:8|confirmed',
     ]);
 
-    // 2. Siapkan data untuk diupdate
     $data = [
         'name' => $request->name,
         'email' => $request->email,
-        'role' => $request->role, // <-- INI BAGIAN KUNCI YANG DIPERBAIKI
+        'role' => $request->role,
     ];
 
-    // 3. Hanya update password jika kolomnya diisi
     if ($request->filled('password')) {
         $data['password'] = Hash::make($request->password);
     }
 
-    // 4. Lakukan update ke database
     $user->update($data);
 
-    // 5. Kembali ke halaman daftar dengan pesan sukses
     return redirect()->route('users.index')->with('success', 'Data user berhasil diperbarui.');
 
     }
 
     /**
-     * Menghapus user dari database.
+    * Menonaktifkan akun pengguna.
+    */
+    public function deactivate(User $user)
+    {
+        $user->update(['is_active' => false]);
+        return redirect()->route('users.index')->with('success', 'Akun pengguna berhasil dinonaktifkan.');
+    }
+    
+    /**
+     * Mengaktifkan akun pengguna.
+     */
+    public function activate(User $user)
+    {
+        $user->update(['is_active' => true]);
+        return redirect()->route('users.index')->with('success', 'Akun pengguna berhasil diaktifkan.');
+    }
+
+    /**
+     * Menghapus pengguna secara permanen jika tidak ada data terkait.
      */
     public function destroy(User $user)
     {
+        if ($user->transaksis()->exists() || $user->activityLogs()->exists()) {
+            // Jika ada, kembalikan dengan pesan eror
+            return redirect()->route('users.index')
+                             ->with('error', 'Pengguna "'. $user->name .'" tidak dapat dihapus karena memiliki riwayat aktivitas atau transaksi.');
+        }
+
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
+
+        return redirect()->route('users.index')
+                         ->with('success', 'User berhasil dihapus permanen.');
     }
 }
