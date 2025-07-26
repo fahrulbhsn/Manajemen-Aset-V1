@@ -9,7 +9,7 @@ use App\Traits\LogsActivity; // Import trait untuk mencatat aktivitas
 class Aset extends Model
 {
     use HasFactory;
-    use HasFactory, LogsActivity; // Gunakan trait LogsActivity untuk mencatat aktivitas
+    //use HasFactory, LogsActivity; // Gunakan trait LogsActivity untuk mencatat aktivitas
 
     // Izinkan semua kolom untuk diisi kecuali ID
     protected $guarded = ['id'];

@@ -7,6 +7,7 @@ use App\Models\Kategori;
 use App\Models\Status;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Auth;
 
 class AsetController extends Controller
 {
@@ -219,6 +220,11 @@ class AsetController extends Controller
      */
     public function destroy(Aset $aset)
     {
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menghapus',
+            'description' => "Menghapus aset '{$aset->nama_aset}' (ID: {$aset->id})"
+    ]);
         // Hapus transaksi terkait
         $aset->transaksis()->delete();
 

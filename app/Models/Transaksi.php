@@ -9,7 +9,7 @@ use App\Traits\LogsActivity; // Import trait untuk mencatat aktivitas
 class Transaksi extends Model
 {
     use HasFactory;
-    use LogsActivity; // Gunakan trait LogsActivity untuk mencatat aktivitas
+    //use LogsActivity; // Gunakan trait LogsActivity untuk mencatat aktivitas
 
     // Izinkan semua kolom untuk diisi secara massal kecuali ID
     protected $guarded = ['id'];

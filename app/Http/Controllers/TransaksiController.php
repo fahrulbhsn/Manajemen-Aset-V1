@@ -12,31 +12,33 @@ class TransaksiController extends Controller
 {
     public function index(Request $request)
     {
-            $tanggal_awal = $request->input('tanggal_awal');
-            $tanggal_akhir = $request->input('tanggal_akhir');
-            $search = $request->input('search');
+        $tanggal_awal = $request->input('tanggal_awal');
+        $tanggal_akhir = $request->input('tanggal_akhir');
+        $search = $request->input('search');
 
-            $query = Transaksi::with(['aset', 'user'])->latest();
+        $query = Transaksi::with(['aset', 'user'])->latest();
 
-                // Terapkan filter tanggal
-                if ($tanggal_awal && $tanggal_akhir) {
-                    $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        // Terapkan filter tanggal
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        }
+
+        // Terapkan filter pencarian
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                // Cari berdasarkan ID Transaksi cukup angka
+                if (is_numeric($search)) {
+                    $q->where('id', $search);
                 }
-                // Terapkan filter pencarian yang lebih canggih
-                if ($search) {
-                    $query->where(function($q) use ($search) {
-                        // Cari berdasarkan ID Transaksi cukup angka)
-                        if (is_numeric($search)) {
-                            $q->where('id', $search);
-                }
+
                 // Cari berdasarkan Nama Aset, Nama Pembeli, atau Nama User yang Mencatat
                 $q->orWhere('nama_pembeli', 'like', '%' . $search . '%')
-                ->orWhereHas('aset', function ($q_aset) use ($search) {
-                    $q_aset->where('nama_aset', 'like', '%' . $search . '%');
-                })
-                ->orWhereHas('user', function ($q_user) use ($search) {
-                    $q_user->where('name', 'like', '%' . $search . '%');
-                });
+                    ->orWhereHas('aset', function ($q_aset) use ($search) {
+                        $q_aset->where('nama_aset', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('user', function ($q_user) use ($search) {
+                        $q_user->where('name', 'like', '%' . $search . '%');
+                    });
             });
         }
 
@@ -47,50 +49,58 @@ class TransaksiController extends Controller
 
     public function create()
     {
-        $asets = Aset::whereHas('status', function($query) {
+        $asets = Aset::whereHas('status', function ($query) {
             $query->where('name', 'Tersedia');
         })->get();
+
         return view('transaksi.create', compact('asets'));
     }
 
     public function store(Request $request)
-{
-    // Validasi data masukan
-    $validatedData = $request->validate([
-        'aset_id' => 'required|exists:asets,id',
-        'nama_pembeli' => 'required|string|max:255',
-        'kontak_pembeli' => 'required|string|max:255',
-        'harga_jual_akhir' => 'required|integer',
-        'tanggal_jual' => 'required|date',
-        'metode_pembayaran' => 'required|string|in:Tunai,Transfer Bank,QRIS',
-    ]);
+    {
+        // Validasi data masukan
+        $validatedData = $request->validate([
+            'aset_id' => 'required|exists:asets,id',
+            'nama_pembeli' => 'required|string|max:255',
+            'kontak_pembeli' => 'required|string|max:255',
+            'harga_jual_akhir' => 'required|integer',
+            'tanggal_jual' => 'required|date',
+            'metode_pembayaran' => 'required|string|in:Tunai,Transfer Bank,QRIS',
+        ]);
 
-    // Tambahkan user_id dari pengguna yang sedang login
-    $validatedData['user_id'] = Auth::id();
+        // Tambahkan user_id dari pengguna yang sedang login
+        $validatedData['user_id'] = Auth::id();
 
-    // Cari aset berdasarkan aset_id
-    $aset = Aset::find($validatedData['aset_id']);
+        // Cari aset berdasarkan aset_id
+        $aset = Aset::find($validatedData['aset_id']);
 
-    // Periksa apakah aset ada dan statusnya "Tersedia"
-    if (!$aset || $aset->status->name !== 'Tersedia') {
-        return back()->with('error', 'Aset tidak ditemukan atau sudah tidak tersedia.');
+        // Periksa apakah aset ada dan statusnya "Tersedia"
+        if (!$aset || $aset->status->name !== 'Tersedia') {
+            return back()->with('error', 'Aset tidak ditemukan atau sudah tidak tersedia.');
+        }
+
+        // Simpan data transaksi baru
+        $transaksi = Transaksi::create($validatedData);
+
+        // Update status aset menjadi "Terjual" dan tanggal update
+        $statusTerjual = Status::where('name', 'Terjual')->first();
+        if ($statusTerjual) {
+            $aset->status_id = $statusTerjual->id;
+            $aset->tanggal_update = now();
+            $aset->save();
+        }
+
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menambah',
+            'description' => "Menambah transaksi 'TRX-{$transaksi->id}' untuk aset '{$aset->nama_aset}'"
+        ]);
+
+        // Arahkan ke halaman detail transaksi dengan pesan sukses
+        return redirect()->route('transaksi.show', $transaksi->id)
+            ->with('success', 'Transaksi berhasil dicatat! Anda bisa mencetak struk di sini.');
     }
 
-    // Simpan data transaksi baru
-    $transaksi = Transaksi::create($validatedData);
-
-    // Update status aset menjadi "Terjual" dan tanggal update
-    $statusTerjual = Status::where('name', 'Terjual')->first();
-    if ($statusTerjual) {
-        $aset->status_id = $statusTerjual->id;
-        $aset->tanggal_update = now();
-        $aset->save();
-    }
-
-    // Arahkan ke halaman detail transaksi dengan pesan sukses
-    return redirect()->route('transaksi.show', $transaksi->id)
-        ->with('success', 'Transaksi berhasil dicatat! Anda bisa mencetak struk di sini.');
-}
     /**
      * Menampilkan formulir untuk mengedit transaksi.
      */
@@ -123,7 +133,11 @@ class TransaksiController extends Controller
      */
     public function destroy(Transaksi $transaksi)
     {
-        // (Logika Otomatisasi) Kembalikan status aset menjadi "Tersedia"
+        //Ambil semua informasi yang dibutuhkan untuk log SEBELUM data dihapus.
+        $namaAset = $transaksi->aset->nama_aset ?? 'Aset Dihapus';
+        $transaksiId = $transaksi->id;
+
+        //Kembalikan status aset menjadi "Tersedia"
         $aset = Aset::find($transaksi->aset_id);
         $statusTersedia = Status::where('name', 'Tersedia')->first();
 
@@ -133,22 +147,31 @@ class TransaksiController extends Controller
             $aset->save();
         }
 
-        // Hapus data transaksi
+        //Hapus data transaksi
         $transaksi->delete();
+
+        //Catat log aktivitas menggunakan informasi yang sudah kita simpan
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menghapus',
+            'description' => "Menghapus transaksi 'TRX-{$transaksiId}' untuk aset '{$namaAset}'"
+        ]);
 
         return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus dan status aset telah dikembalikan.');
     }
-        /**
-        * Menampilkan halaman struk untuk dicetak.
-        */
-        public function cetak_struk(Transaksi $transaksi)
+
+    /**
+     * Menampilkan halaman struk untuk dicetak.
+     */
+    public function cetak_struk(Transaksi $transaksi)
     {
-            // Mengirim data transaksi yang spesifik ke halaman view 'transaksi.struk'
-            return view('transaksi.struk', compact('transaksi'));
+        // Mengirim data transaksi yang spesifik ke halaman view 'transaksi.struk'
+        return view('transaksi.struk', compact('transaksi'));
     }
-        /**
-        * Menampilkan detail transaksi tertentu.
-        */
+
+    /**
+     * Menampilkan detail transaksi tertentu.
+     */
     public function show(Transaksi $transaksi)
     {
         // Mengirim data transaksi yang spesifik, beserta relasinya,
