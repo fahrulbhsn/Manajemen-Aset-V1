@@ -16,7 +16,9 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
         @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
         @endif
         <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -36,7 +38,6 @@
                                 <a href="{{ route('aset.index', ['status_id' => $status->id]) }}" class="btn btn-info btn-circle btn-sm" title="Lihat Aset dengan status ini">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                {{-- Tombol Edit & Hapus hanya muncul untuk Admin --}}
                                 @if(Auth::user()->role == 'admin')
                                 <a href="{{ route('status.edit', $status->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit Status">
                                     <i class="fas fa-edit"></i>
@@ -61,4 +62,5 @@
         </div>
     </div>
 </div>
+
 @endsection
