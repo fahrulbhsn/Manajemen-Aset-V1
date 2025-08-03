@@ -31,7 +31,7 @@
             </div>
             <div class="item">
                 <span>Tanggal:</span>
-                <span>{{ \Carbon\Carbon::parse($transaksi->tanggal_jual)->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</span>
+                <span>{{ \Carbon\Carbon::parse($transaksi->created_at)->format('d/m/Y H:i') }}</span>
             </div>
             <div class="item">
                 <span>Kasir:</span>
