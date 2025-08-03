@@ -7,7 +7,9 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
+        @if(Auth::user()->role == 'admin')
         <a href="{{ route('kategori.create') }}" class="btn btn-primary">Tambah Kategori Baru</a>
+        @endif
     </div>
     <div class="card-body">
         @if (session('success'))
@@ -37,12 +39,18 @@
                                 <a href="{{ route('aset.index', ['kategori_id' => $kategori->id, 'status_name' => 'Tersedia']) }}" class="btn btn-info btn-circle btn-sm" title="Lihat Aset Tersedia">
                                     <i class="fas fa-eye"></i>
                                 </a>
+                                @if(Auth::user()->role == 'admin')
                                 <a href="{{ route('kategori.edit', $kategori->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit Kategori">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button type="button" class="btn btn-danger btn-circle btn-sm ml-2" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('kategori.destroy', $kategori->id) }}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <form action="{{ route('kategori.destroy', $kategori->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-danger btn-circle btn-sm ml-2" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('kategori.destroy', $kategori->id) }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                @endif
                             </td>
                         </tr>
                     @empty

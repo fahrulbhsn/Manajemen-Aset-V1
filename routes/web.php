@@ -41,8 +41,8 @@ use App\Models\Transaksi;
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
         // Rute pencarian aset via AJAX
         Route::get('/api/aset/search', [AsetController::class, 'search'])->name('aset.search');
-        Route::resource('kategori', KategoriController::class);
-        Route::resource('status', StatusController::class);
+        Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
+        Route::get('/status', [StatusController::class, 'index'])->name('status.index');
         Route::resource('aset', AsetController::class);
         Route::resource('transaksi', TransaksiController::class);
         // Rute untuk laporan
@@ -58,6 +58,9 @@ use App\Models\Transaksi;
 
     // Rute Khusus Admin
     Route::middleware(['auth', 'admin'])->group(function () {
+        Route::resource('kategori', KategoriController::class)->except(['index']);
+        Route::resource('status', StatusController::class)->except(['index']);
+        Route::resource('users', UserController::class);
         Route::resource('users', UserController::class);
         Route::get('/aktivitas', [ActivityLogController::class, 'index'])->name('aktivitas.index');
         Route::put('/users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
