@@ -12,39 +12,34 @@ class TransaksiController extends Controller
 {
     public function index(Request $request)
     {
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 10);
         $tanggal_awal = $request->input('tanggal_awal');
         $tanggal_akhir = $request->input('tanggal_akhir');
-        $search = $request->input('search');
 
         $query = Transaksi::with(['aset', 'user'])->latest();
-
-        // Terapkan filter tanggal
-        if ($tanggal_awal && $tanggal_akhir) {
-            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
-        }
-
-        // Terapkan filter pencarian
+        
         if ($search) {
             $query->where(function ($q) use ($search) {
-                // Cari berdasarkan ID Transaksi cukup angka
-                if (is_numeric($search)) {
-                    $q->where('id', $search);
+                $searchId = str_ireplace('TRX-', '', $search);
+                if (is_numeric($searchId) && $searchId > 0) {
+                    $q->where('id', $searchId);
                 }
 
-                // Cari berdasarkan Nama Aset, Nama Pembeli, atau Nama User yang Mencatat
                 $q->orWhere('nama_pembeli', 'like', '%' . $search . '%')
                     ->orWhereHas('aset', function ($q_aset) use ($search) {
                         $q_aset->where('nama_aset', 'like', '%' . $search . '%');
-                    })
-                    ->orWhereHas('user', function ($q_user) use ($search) {
-                        $q_user->where('name', 'like', '%' . $search . '%');
                     });
             });
         }
 
-        $transaksis = $query->paginate(10);
+        if ($tanggal_awal && $tanggal_akhir) {
+            $query->whereBetween('tanggal_jual', [$tanggal_awal, $tanggal_akhir]);
+        }
 
-        return view('transaksi.index', compact('transaksis', 'tanggal_awal', 'tanggal_akhir', 'search'));
+        $transaksis = $query->paginate($perPage);
+
+        return view('transaksi.index', compact('transaksis', 'search', 'perPage', 'tanggal_awal', 'tanggal_akhir'));
     }
 
     public function create()
@@ -58,7 +53,7 @@ class TransaksiController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi data masukan
+        // Validasi data
         $validatedData = $request->validate([
             'aset_id' => 'required|exists:asets,id',
             'nama_pembeli' => 'required|string|max:255',
@@ -68,21 +63,14 @@ class TransaksiController extends Controller
             'metode_pembayaran' => 'required|string|in:Tunai,Transfer Bank,QRIS',
         ]);
 
-        // Tambahkan user_id dari pengguna yang sedang login
         $validatedData['user_id'] = Auth::id();
-
-        // Cari aset berdasarkan aset_id
         $aset = Aset::find($validatedData['aset_id']);
-
-        // Periksa apakah aset ada dan statusnya "Tersedia"
         if (!$aset || $aset->status->name !== 'Tersedia') {
             return back()->with('error', 'Aset tidak ditemukan atau sudah tidak tersedia.');
         }
 
-        // Simpan data transaksi baru
         $transaksi = Transaksi::create($validatedData);
 
-        // Update status aset menjadi "Terjual" dan tanggal update
         $statusTerjual = Status::where('name', 'Terjual')->first();
         if ($statusTerjual) {
             $aset->status_id = $statusTerjual->id;
@@ -96,7 +84,6 @@ class TransaksiController extends Controller
             'description' => "Menambah transaksi 'TRX-{$transaksi->id}' untuk aset '{$aset->nama_aset}'"
         ]);
 
-        // Arahkan ke halaman detail transaksi dengan pesan sukses
         return redirect()->route('transaksi.show', $transaksi->id)
             ->with('success', 'Transaksi berhasil dicatat! Anda bisa mencetak struk di sini.');
     }
@@ -106,7 +93,6 @@ class TransaksiController extends Controller
      */
     public function edit(Transaksi $transaksi)
     {
-        // Kita hanya perlu mengirim data transaksi yang akan diedit
         return view('transaksi.edit', compact('transaksi'));
     }
 
@@ -115,6 +101,7 @@ class TransaksiController extends Controller
      */
     public function update(Request $request, Transaksi $transaksi)
     {
+        // Validasi data
         $request->validate([
             'nama_pembeli' => 'required|string|max:255',
             'kontak_pembeli' => 'required|string|max:255',
@@ -123,15 +110,33 @@ class TransaksiController extends Controller
             'metode_pembayaran' => 'required|string|in:Tunai,Transfer Bank,QRIS',
         ]);
 
-        $transaksi->update($request->all());
+        // Cek peran pengguna
+        if (Auth::user()->role == 'admin') {
 
-        \App\Models\ActivityLog::create([
-            'user_id' => Auth::id(),
-            'action' => 'mengubah',
-            'description' => "Mengubah transaksi 'TRX-{$transaksi->id}'"
-        ]);
+            $transaksi->update($request->all());
 
-        return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil diperbarui.');
+            \App\Models\ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'mengubah',
+                'description' => "Mengubah transaksi 'TRX-{$transaksi->id}'"
+            ]);
+
+            return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil diperbarui.');
+
+        } else {
+
+            $transaksi->pending_data = json_encode($request->except('_token', '_method'));
+            $transaksi->approval_status = 'menunggu persetujuan edit';
+            $transaksi->save();
+
+            \App\Models\ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'mengajukan',
+                'description' => "Mengajukan perubahan untuk transaksi 'TRX-{$transaksi->id}'"
+            ]);
+
+            return redirect()->route('transaksi.index')->with('success', 'Permintaan perubahan transaksi telah diajukan untuk persetujuan Admin.');
+        }
     }
 
     /**
@@ -139,31 +144,41 @@ class TransaksiController extends Controller
      */
     public function destroy(Transaksi $transaksi)
     {
-        //Ambil semua informasi yang dibutuhkan untuk log SEBELUM data dihapus.
-        $namaAset = $transaksi->aset->nama_aset ?? 'Aset Dihapus';
-        $transaksiId = $transaksi->id;
+        // Cek peran pengguna
+        if (Auth::user()->role == 'admin') {
+            $namaAset = $transaksi->aset->nama_aset ?? 'Aset Dihapus';
+            $transaksiId = $transaksi->id;
+            $aset = Aset::find($transaksi->aset_id);
+            $statusTersedia = Status::where('name', 'Tersedia')->first();
+            if ($aset && $statusTersedia) {
+                $aset->status_id = $statusTersedia->id;
+                $aset->tanggal_update = now();
+                $aset->save();
+            }
 
-        //Kembalikan status aset menjadi "Tersedia"
-        $aset = Aset::find($transaksi->aset_id);
-        $statusTersedia = Status::where('name', 'Tersedia')->first();
+            $transaksi->delete();
 
-        if ($aset && $statusTersedia) {
-            $aset->status_id = $statusTersedia->id;
-            $aset->tanggal_update = now();
-            $aset->save();
+            \App\Models\ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'menghapus',
+                'description' => "Menghapus transaksi 'TRX-{$transaksiId}' untuk aset '{$namaAset}'"
+            ]);
+
+            return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus dan status aset telah dikembalikan.');
+
+        } else {
+
+            $transaksi->approval_status = 'menunggu persetujuan hapus';
+            $transaksi->save();
+
+            \App\Models\ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'mengajukan',
+                'description' => "Mengajukan penghapusan untuk transaksi 'TRX-{$transaksi->id}'"
+            ]);
+
+            return redirect()->route('transaksi.index')->with('success', 'Permintaan penghapusan transaksi telah diajukan untuk persetujuan Admin.');
         }
-
-        //Hapus data transaksi
-        $transaksi->delete();
-
-        //Catat log aktivitas
-        \App\Models\ActivityLog::create([
-            'user_id' => Auth::id(),
-            'action' => 'menghapus',
-            'description' => "Menghapus transaksi 'TRX-{$transaksiId}' untuk aset '{$namaAset}'"
-        ]);
-
-        return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus dan status aset telah dikembalikan.');
     }
 
     /**
@@ -171,7 +186,6 @@ class TransaksiController extends Controller
      */
     public function cetak_struk(Transaksi $transaksi)
     {
-        // Mengirim data transaksi yang spesifik ke halaman view 'transaksi.struk'
         return view('transaksi.struk', compact('transaksi'));
     }
 
@@ -180,8 +194,6 @@ class TransaksiController extends Controller
      */
     public function show(Transaksi $transaksi)
     {
-        // Mengirim data transaksi yang spesifik, beserta relasinya,
-        // ke halaman view 'transaksi.show'
         $transaksi->load(['aset', 'user']);
         return view('transaksi.show', compact('transaksi'));
     }

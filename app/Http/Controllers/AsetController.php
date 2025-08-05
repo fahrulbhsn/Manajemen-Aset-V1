@@ -16,7 +16,6 @@ class AsetController extends Controller
      */
     public function index(Request $request)
     {
-        // Mengambil semua parameter dari URL
         $search = $request->input('search');
         $sort = $request->input('sort');
         $direction = $request->input('direction', 'asc');
@@ -40,17 +39,12 @@ class AsetController extends Controller
             });
         }
 
-        //Filter dari Halaman Status (berdasarkan ID)
         if ($status_id) {
             $query->where('status_id', $status_id);
         }
-
-        //Filter dari Halaman Kategori (berdasarkan ID)
         if ($kategori_id) {
             $query->where('kategori_id', $kategori_id);
         }
-
-        //Filter tambahan dari Halaman Kategori (berdasarkan nama 'Tersedia')
         if ($status_name) {
             $query->whereHas('status', function($q) use ($status_name) {
                 $q->where('name', $status_name);
@@ -74,18 +68,16 @@ class AsetController extends Controller
             $query->orderBy('id', 'desc');
         }
 
-        // Menggunakan paginate dengan jumlah baris sesuai input per_page
         $asets = $query->paginate($per_page)->withQueryString();
 
         return view('aset.index', compact('asets', 'search', 'sort', 'direction', 'per_page'));
     }
 
     /**
-     * Mencari aset untuk 
+     * Mencari aset
      */
     public function search(Request $request)
     {
-        // Mengambil parameter pencarian dari Select2 (menggunakan 'term' sesuai )
         $search = $request->input('term');
 
         $asets = Aset::where('nama_aset', 'LIKE', "%{$search}%")
@@ -96,7 +88,6 @@ class AsetController extends Controller
                      ->limit(20) // Batasi hasil agar tidak terlalu banyak
                      ->get();
 
-        // Format respons sesuai kebutuhan Select2 dan create.blade.php
         $formatted_asets = $asets->map(function($aset) {
             return [
                 'id' => $aset->id,
@@ -114,7 +105,6 @@ class AsetController extends Controller
      */
     public function create()
     {
-        // Ambil semua data kategori dan status untuk ditampilkan di dropdown
         $kategoris = Kategori::all();
         $statuses = Status::whereIn('name', ['Tersedia', 'Perbaikan'])->get(); // Hanya tampilkan status yang relevan
         return view('aset.create', compact('kategoris', 'statuses'));
@@ -163,7 +153,6 @@ class AsetController extends Controller
      */
     public function show(Aset $aset)
     {
-        // Mengirim data aset yang spesifik ke halaman view 'aset.show'
         return view('aset.show', compact('aset'));
     }
 
@@ -172,9 +161,7 @@ class AsetController extends Controller
      */
     public function edit(Aset $aset)
     {
-        // Ambil data untuk dropdown
         $kategoris = Kategori::all();
-        // Perbaiki baris ini untuk tidak menyertakan "Terjual"
         $statuses = Status::where('name', '!=', 'Terjual')->get(); 
         return view('aset.edit', compact('aset', 'kategoris', 'statuses'));
     }
@@ -184,7 +171,7 @@ class AsetController extends Controller
      */
     public function update(Request $request, Aset $aset)
     {
-        // Validasi data
+        //Validasi data
         $request->validate([
             'nama_aset' => 'required|string|max:255',
             'kategori_id' => 'required|exists:kategoris,id',
@@ -193,63 +180,90 @@ class AsetController extends Controller
             'harga_beli' => 'required|integer',
             'harga_jual' => 'required|integer',
             'detail' => 'nullable|string',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar untuk update
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->except('foto');
+        // Cek pengguna
+        if (Auth::user()->role == 'admin') {
+            $data = $request->except('foto');
 
-        // LOGIKA CEK PERUBAHAN STATUS DAN UPDATE tanggal_update
-        if ($request->status_id != $aset->status_id) {
-            $data['tanggal_update'] = now();
-        }
-
-        // LOGIKA UNTUK MENGGANTI/MEMPERBARUI FOTO
-        if ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada
-            if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
-                File::delete(public_path('foto_aset/' . $aset->foto));
+            if ($request->status_id != $aset->status_id) {
+                $data['tanggal_update'] = now();
             }
 
-            // Unggah foto baru
-            $namaFile = time() . '.' . $request->foto->extension();
-            $request->foto->move(public_path('foto_aset'), $namaFile);
-            $data['foto'] = $namaFile;
+            if ($request->hasFile('foto')) {
+                if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
+                    File::delete(public_path('foto_aset/' . $aset->foto));
+                }
+                $namaFile = time() . '.' . $request->foto->extension();
+                $request->foto->move(public_path('foto_aset'), $namaFile);
+                $data['foto'] = $namaFile;
+            }
+
+            $aset->update($data);
+
+            \App\Models\ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'mengubah',
+                'description' => "Mengubah data aset '{$aset->nama_aset}'"
+            ]);
+
+            return redirect()->route('aset.index')->with('success', 'Aset berhasil diperbarui.');
+
+        } else {
+
+            $pendingData = $request->except('_token', '_method', 'foto');
+            if ($request->hasFile('foto')) {
+                $namaFile = time() . '.' . $request->foto->extension();
+                $request->foto->move(public_path('foto_aset'), $namaFile);
+                $pendingData['foto'] = $namaFile;
+            }
+            
+            $aset->pending_data = json_encode($pendingData);
+            $aset->approval_status = 'menunggu persetujuan edit';
+            $aset->save();
+
+            // Catat aktivitas pengajuan
+            \App\Models\ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'mengajukan',
+                'description' => "Mengajukan perubahan untuk aset '{$aset->nama_aset}'"
+            ]);
+
+            return redirect()->route('aset.index')->with('success', 'Permintaan perubahan aset telah diajukan untuk persetujuan Admin.');
         }
-
-        $aset->update($data);
-
-        // Log mengedit aset
-        \App\Models\ActivityLog::create([
-            'user_id' => Auth::id(),
-            'action' => 'mengubah',
-            'description' => "Mengubah data aset '{$aset->nama_aset}'"
-        ]);
-
-        return redirect()->route('aset.index')->with('success', 'Aset berhasil diperbarui.');
     }
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Aset $aset)
     {
-        // Hapus transaksi terkait
-        $aset->transaksis()->delete();
+        if (Auth::user()->role == 'admin') {
+            $namaAset = $aset->nama_aset;
+            $aset->transaksis()->delete(); // Hapus transaksi terkait
+            if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
+                File::delete(public_path('foto_aset/' . $aset->foto)); // Hapus file foto
+            }
+            $aset->delete();
+            \App\Models\ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'menghapus',
+                'description' => "Menghapus aset '{$namaAset}'"
+            ]);
+            return redirect()->route('aset.index')
+                             ->with('success', 'Aset dan semua riwayat transaksinya berhasil dihapus.');
 
-        // Hapus foto dari server
-        if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
-            File::delete(public_path('foto_aset/' . $aset->foto));
+        } else {
+            $aset->approval_status = 'menunggu persetujuan hapus';
+            $aset->save();
+
+            \App\Models\ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'mengajukan',
+                'description' => "Mengajukan penghapusan untuk aset '{$aset->nama_aset}'"
+            ]);
+
+            return redirect()->route('aset.index')->with('success', 'Permintaan penghapusan aset telah diajukan untuk persetujuan Admin.');
         }
-
-        // Hapus aset
-        $aset->delete();
-        \App\Models\ActivityLog::create([
-            'user_id' => Auth::id(),
-            'action' => 'menghapus',
-            'description' => "Menghapus aset '{$aset->nama_aset}'"
-        ]);
-
-        return redirect()->route('aset.index')
-                         ->with('success', 'Aset dan semua riwayat transaksinya berhasil dihapus.');
     }
 }

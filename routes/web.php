@@ -9,6 +9,7 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ApprovalController;
 use App\Models\Aset;
 use App\Models\Transaksi;
 
@@ -65,6 +66,11 @@ use App\Models\Transaksi;
         Route::get('/aktivitas', [ActivityLogController::class, 'index'])->name('aktivitas.index');
         Route::put('/users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
         Route::put('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+        Route::get('/persetujuan', [ApprovalController::class, 'index'])->name('approval.index');
+        Route::put('/persetujuan/aset/{aset}/approve', [ApprovalController::class, 'approveAset'])->name('approval.aset.approve');
+        Route::put('/persetujuan/aset/{aset}/reject', [ApprovalController::class, 'rejectAset'])->name('approval.aset.reject');
+        Route::put('/persetujuan/transaksi/{transaksi}/approve', [ApprovalController::class, 'approveTransaksi'])->name('approval.transaksi.approve');
+        Route::put('/persetujuan/transaksi/{transaksi}/reject', [ApprovalController::class, 'rejectTransaksi'])->name('approval.transaksi.reject');
     });
 });
 

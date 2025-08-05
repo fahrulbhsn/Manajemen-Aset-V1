@@ -14,13 +14,11 @@
     <div id="wrapper">
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             {{-- Isi sidebar --}}
-            <!--  CSS untuk membuat logo -->
             <style>
                 .sidebar-brand-icon img {
                 border-radius: 50%;
                 object-fit: cover;}
             </style>
-                <!-- Ganti bagian sidebar-brand dengan ini -->
                 <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
                     <div class="sidebar-brand-icon">
                         <img src="{{ asset('img/logo.png') }}" alt="Gigih Com" width="40" height="40">
@@ -63,6 +61,13 @@
             @if(Auth::user()->role == 'admin')
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Admin</div>
+
+            <li class="nav-item">
+    <a class="nav-link" href="{{ route('approval.index') }}">
+        <i class="fas fa-fw fa-check-double"></i>
+        <span>Pusat Persetujuan</span>
+    </a>
+</li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-fw fa-users"></i><span>Manajemen User</span></a>
             </li>
