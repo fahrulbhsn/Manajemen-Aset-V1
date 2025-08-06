@@ -217,8 +217,7 @@ class AsetController extends Controller
                 $namaFile = time() . '.' . $request->foto->extension();
                 $request->foto->move(public_path('foto_aset'), $namaFile);
                 $pendingData['foto'] = $namaFile;
-            }
-            
+            }            
             $aset->pending_data = json_encode($pendingData);
             $aset->approval_status = 'menunggu persetujuan edit';
             $aset->save();

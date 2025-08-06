@@ -8,6 +8,7 @@ use App\Models\Kategori;
 use App\Models\Status;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
 
 class ApprovalController extends Controller
@@ -26,10 +27,18 @@ class ApprovalController extends Controller
     // --- LOGIKA PERSETUJUAN ASET ---
     public function approveAset(Aset $aset)
     {
+        // Ambil data
+        $jenisPermintaan = ($aset->approval_status == 'menunggu persetujuan edit') ? 'edit' : 'hapus';
+        $namaAset = $aset->nama_aset;
+
         if ($aset->approval_status == 'menunggu persetujuan edit') {
             $pendingData = json_decode($aset->pending_data, true);
+            
+            if (isset($pendingData['status_id']) && $pendingData['status_id'] != $aset->status_id) {
+                $pendingData['tanggal_update'] = now();
+            }
 
-            // Jika ada foto baru yang disetujui, hapus foto lama
+            // Menghapus file foto lama jika ada yang baru
             if (isset($pendingData['foto'])) {
                 if ($aset->foto && File::exists(public_path('foto_aset/' . $aset->foto))) {
                     File::delete(public_path('foto_aset/' . $aset->foto));
@@ -41,15 +50,28 @@ class ApprovalController extends Controller
             $aset->approval_status = 'disetujui';
             $aset->save();
         } elseif ($aset->approval_status == 'menunggu persetujuan hapus') {
-            $aset->delete();
+            $aset->delete(); // Penghapusan aset
         }
+
+        // Catat aktivitas ke dalam log
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menyetujui',
+            'description' => "Menyetujui permintaan {$jenisPermintaan} untuk aset '{$namaAset}'"
+        ]);
+
         return redirect()->route('approval.index')->with('success', 'Permintaan aset telah disetujui.');
     }
 
     public function rejectAset(Aset $aset)
     {
+        // Ambil data untuk log
+        $jenisPermintaan = ($aset->approval_status == 'menunggu persetujuan edit') ? 'edit' : 'hapus';
+        $namaAset = $aset->nama_aset;
+
         if ($aset->approval_status == 'menunggu persetujuan edit' && $aset->pending_data) {
              $pendingData = json_decode($aset->pending_data, true);
+             // Menghapus file foto baru yang diupload jika permintaan ditolak
              if (isset($pendingData['foto']) && File::exists(public_path('foto_aset/' . $pendingData['foto']))) {
                 File::delete(public_path('foto_aset/' . $pendingData['foto']));
             }
@@ -57,12 +79,23 @@ class ApprovalController extends Controller
         $aset->pending_data = null;
         $aset->approval_status = 'disetujui';
         $aset->save();
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menolak',
+            'description' => "Menolak permintaan {$jenisPermintaan} untuk aset '{$namaAset}'"
+        ]);
+
         return redirect()->route('approval.index')->with('success', 'Permintaan aset telah ditolak.');
     }
 
     // --- LOGIKA PERSETUJUAN TRANSAKSI ---
     public function approveTransaksi(Transaksi $transaksi)
     {
+        // Ambil data untuk log
+        $jenisPermintaan = ($transaksi->approval_status == 'menunggu persetujuan edit') ? 'edit' : 'hapus';
+        $transaksiId = $transaksi->id;
+
         if ($transaksi->approval_status == 'menunggu persetujuan edit') {
             $pendingData = json_decode($transaksi->pending_data, true);
             $transaksi->update($pendingData);
@@ -70,22 +103,41 @@ class ApprovalController extends Controller
             $transaksi->approval_status = 'disetujui';
             $transaksi->save();
         } elseif ($transaksi->approval_status == 'menunggu persetujuan hapus') {
+            // Mengembalikan status aset menjadi Tersedia
             $aset = Aset::find($transaksi->aset_id);
             if ($aset) {
-                $statusTersedia = \App\Models\Status::where('name', 'Tersedia')->first();
+                $statusTersedia = Status::where('name', 'Tersedia')->first();
                 $aset->status_id = $statusTersedia->id;
                 $aset->save();
             }
             $transaksi->delete();
         }
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menyetujui',
+            'description' => "Menyetujui permintaan {$jenisPermintaan} untuk transaksi 'TRX-{$transaksiId}'"
+        ]);
+
         return redirect()->route('approval.index')->with('success', 'Permintaan transaksi telah disetujui.');
     }
 
     public function rejectTransaksi(Transaksi $transaksi)
     {
+        $jenisPermintaan = ($transaksi->approval_status == 'menunggu persetujuan edit') ? 'edit' : 'hapus';
+        $transaksiId = $transaksi->id;
+
         $transaksi->pending_data = null;
         $transaksi->approval_status = 'disetujui';
         $transaksi->save();
+
+        // Catat aktivitas ke dalam log
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'menolak',
+            'description' => "Menolak permintaan {$jenisPermintaan} untuk transaksi 'TRX-{$transaksiId}'"
+        ]);
+        
         return redirect()->route('approval.index')->with('success', 'Permintaan transaksi telah ditolak.');
     }
 }
