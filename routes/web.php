@@ -46,13 +46,6 @@ use App\Models\Transaksi;
         Route::get('/status', [StatusController::class, 'index'])->name('status.index');
         Route::resource('aset', AsetController::class);
         Route::resource('transaksi', TransaksiController::class);
-        // Rute untuk laporan
-        Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
-        Route::get('/laporan/pembelian', [LaporanController::class, 'pembelian'])->name('laporan.pembelian');
-        Route::get('/laporan/laba-rugi', [LaporanController::class, 'laba_rugi'])->name('laporan.laba_rugi');
-        Route::get('/laporan/penjualan/cetak-pdf', [LaporanController::class, 'cetak_penjualan_pdf'])->name('laporan.penjualan.pdf');
-        Route::get('/laporan/pembelian/pdf', [LaporanController::class, 'cetak_pembelian'])->name('laporan.pembelian.pdf');
-        Route::get('/laporan/laba-rugi/pdf', [LaporanController::class, 'cetak_laba_rugi'])->name('laporan.laba_rugi.pdf');
         // Rute untuk cetak struk transaksi
         Route::get('/transaksi/{transaksi}/cetak', [App\Http\Controllers\TransaksiController::class, 'cetak_struk'])->name('transaksi.cetak_struk');
         Route::resource('transaksi', App\Http\Controllers\TransaksiController::class);
@@ -71,6 +64,13 @@ use App\Models\Transaksi;
         Route::put('/persetujuan/aset/{aset}/reject', [ApprovalController::class, 'rejectAset'])->name('approval.aset.reject');
         Route::put('/persetujuan/transaksi/{transaksi}/approve', [ApprovalController::class, 'approveTransaksi'])->name('approval.transaksi.approve');
         Route::put('/persetujuan/transaksi/{transaksi}/reject', [ApprovalController::class, 'rejectTransaksi'])->name('approval.transaksi.reject');
+        // Rute untuk laporan
+        Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
+        Route::get('/laporan/pembelian', [LaporanController::class, 'pembelian'])->name('laporan.pembelian');
+        Route::get('/laporan/laba-rugi', [LaporanController::class, 'laba_rugi'])->name('laporan.laba_rugi');
+        Route::get('/laporan/penjualan/cetak-pdf', [LaporanController::class, 'cetak_penjualan_pdf'])->name('laporan.penjualan.pdf');
+        Route::get('/laporan/pembelian/pdf', [LaporanController::class, 'cetak_pembelian'])->name('laporan.pembelian.pdf');
+        Route::get('/laporan/laba-rugi/pdf', [LaporanController::class, 'cetak_laba_rugi'])->name('laporan.laba_rugi.pdf');
     });
 });
 

@@ -52,9 +52,11 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Manajemen Transaksi:</h6>
                         <a class="collapse-item" href="{{ route('transaksi.index') }}">Daftar Transaksi</a>
+                        @if(Auth::user()->role == 'admin')
                         <a class="collapse-item" href="{{ route('laporan.penjualan') }}">Laporan Penjualan</a>
                         <a class="collapse-item" href="{{ route('laporan.pembelian') }}">Laporan Pembelian</a>
                         <a class="collapse-item" href="{{ route('laporan.laba_rugi') }}">Laporan Laba Rugi</a>
+                        @endif
                     </div>
                 </div>
             </li>
