@@ -30,6 +30,10 @@ class TransaksiController extends Controller
                     ->orWhereHas('aset', function ($q_aset) use ($search) {
                         $q_aset->where('nama_aset', 'like', '%' . $search . '%');
                     });
+
+                $q->orWhereHas('user', function ($q_user) use ($search) {
+                    $q_user->where('name', 'like', '%' . $search . '%');
+                });
             });
         }
 
