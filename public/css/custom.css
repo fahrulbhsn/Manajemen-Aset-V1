@@ -1,40 +1,44 @@
-/* Responsiveness for Tables on Small Screens */
+/* Custom CSS for Responsive Stack Table (Versi Profesional) */
 @media (max-width: 768px) {
-
-    /* Sembunyikan header tabel asli */
-    .table-responsive-stack thead {
-        display: none;
-    }
-
-    /* Atur baris (tr) dan sel (td) agar tampil sebagai blok/kartu */
-    .table-responsive-stack tr,
-    .table-responsive-stack td {
-        display: block;
-        width: 100%;
-    }
-
-    .table-responsive-stack tr {
-        margin-bottom: 1rem; /* Beri jarak antar kartu */
-        border-bottom: 2px solid #e3e6f0; /* Garis pemisah antar kartu */
-    }
-
-    /* Ini adalah bagian terpenting: Membuat label dari atribut data-label */
-    .table-responsive-stack td::before {
-        content: attr(data-label); /* Ambil teks dari atribut data-label */
-        float: left; /* Posisikan label di kiri */
-        font-weight: bold;
-        text-transform: uppercase;
-        margin-right: 10px; /* Jarak antara label dan isi */
-    }
-
-    /* Atur sel yang berisi tombol aksi agar lebih rapi */
-    .table-responsive-stack td:last-child {
-        text-align: right; /* Posisikan tombol aksi di kanan */
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-
-    .table-responsive-stack td:last-child::before {
-        display: none; /* Jangan tampilkan label "Aksi:" */
-    }
+  .table-responsive-stack {
+    display: block;
+    width: 100%;
+  }
+  .table-responsive-stack thead {
+    display: none; /* Sembunyikan header tabel di mobile */
+  }
+  .table-responsive-stack tr {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15);
+    padding: 0;
+  }
+  .table-responsive-stack td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border: none;
+    border-bottom: 1px solid #f8f9fc;
+  }
+  .table-responsive-stack td:last-child {
+    border-bottom: none; /* Hapus border untuk item terakhir */
+  }
+  .table-responsive-stack td::before {
+    content: attr(data-label); /* Ambil teks dari atribut data-label */
+    font-weight: bold;
+    margin-right: 1rem;
+    text-align: left;
+    flex-shrink: 0; /* Mencegah label mengecil */
+  }
+  /* Atur agar tombol aksi tetap rapi */
+  .table-responsive-stack td[data-label="Aksi"] {
+      justify-content: flex-start;
+  }
+  .table-responsive-stack td[data-label="Aksi"] .btn {
+      margin-bottom: 5px; /* Memberi jarak jika tombol lebih dari satu */
+  }
 }
