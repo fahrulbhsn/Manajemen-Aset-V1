@@ -6,9 +6,12 @@
 <p class="mb-4">Daftar semua kategori aset yang tersedia di dalam sistem.</p>
 
 <div class="card shadow mb-4">
-    <div class="card-header py-3">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Daftar Kategori</h6>
         @if(Auth::user()->role == 'admin')
-        <a href="{{ route('kategori.create') }}" class="btn btn-primary">Tambah Kategori Baru</a>
+            <a href="{{ route('kategori.create') }}" class="btn btn-primary btn-circle btn-sm" title="Tambah Kategori Baru">
+                <i class="fas fa-plus"></i>
+            </a>
         @endif
     </div>
     <div class="card-body">
@@ -16,45 +19,42 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
         @if (session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
+            <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
+
         <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            {{-- Tambahkan kelas 'table-responsive-stack' --}}
+            <table class="table table-bordered table-hover table-responsive-stack" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
                         <th>Nama Kategori</th>
-                        <th>Stok Tersedia</th>
-                        <th width="20%">Aksi</th>
+                        <th class="text-center">Stok Tersedia</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($kategoris as $kategori)
                         <tr>
-                            <td>{{ $kategori->name }}</td>
-                            <td>{{ $kategori->asets->where('status.name', 'Tersedia')->count() }}</td>
-                            <td>
+                            {{-- Tambahkan atribut data-label --}}
+                            <td data-label="Nama Kategori">{{ $kategori->name }}</td>
+                            <td data-label="Stok Tersedia" class="text-center">{{ $kategori->asets->where('status.name', 'Tersedia')->count() }}</td>
+                            <td class="text-center">
                                 <a href="{{ route('aset.index', ['kategori_id' => $kategori->id, 'status_name' => 'Tersedia']) }}" class="btn btn-info btn-circle btn-sm" title="Lihat Aset Tersedia">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 @if(Auth::user()->role == 'admin')
-                                <a href="{{ route('kategori.edit', $kategori->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit Kategori">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ route('kategori.destroy', $kategori->id) }}" method="POST" class="d-inline ml-2" onsubmit="return confirm('Anda yakin?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" class="btn btn-danger btn-circle btn-sm ml-2" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('kategori.destroy', $kategori->id) }}">
+                                    <a href="{{ route('kategori.edit', $kategori->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit Kategori">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-circle btn-sm ml-2" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('kategori.destroy', $kategori->id) }}" title="Hapus Kategori">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                </form>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center">Belum ada data kategori.</td>
+                            <td colspan="4" class="text-center">Belum ada data kategori.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -62,5 +62,4 @@
         </div>
     </div>
 </div>
-
 @endsection

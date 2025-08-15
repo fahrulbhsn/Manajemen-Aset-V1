@@ -6,7 +6,7 @@
 <h1 class="h3 mb-2 text-gray-800">Daftar Transaksi</h1>
 <p class="mb-4">Riwayat semua transaksi penjualan yang telah tercatat dalam sistem.</p>
 
-{{-- Tabel transaksi --}}
+{{-- Konten Utama --}}
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 font-weight-bold text-primary">Daftar Transaksi</h6>
@@ -29,16 +29,13 @@
             </div>
         @endif
 
-        {{--FORM FILTER DAN PENCARIAN YANG DISEMPURNAKAN --}}
+        {{-- Form Opsi dan Pencarian --}}
         <div class="row mb-3">
-            {{-- Form untuk Opsi Tampilan --}}
             <div class="col-md-8">
                 <form action="{{ route('transaksi.index') }}" method="GET" class="form-inline">
-                    {{-- Input tersembunyi untuk membawa filter lain yang aktif --}}
                     <input type="hidden" name="search" value="{{ $search ?? '' }}">
                     <input type="hidden" name="tanggal_awal" value="{{ $tanggal_awal ?? '' }}">
                     <input type="hidden" name="tanggal_akhir" value="{{ $tanggal_akhir ?? '' }}">
-
                     <label for="per_page" class="mr-2">Tampilkan:</label>
                     <select name="per_page" id="per_page" class="form-control" onchange="this.form.submit()">
                         <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
@@ -47,7 +44,6 @@
                     </select>
                 </form>
             </div>
-            {{-- Form untuk Pencarian dan Filter Tanggal --}}
             <div class="col-md-4">
                  <form action="{{ route('transaksi.index') }}" method="GET">
                     <input type="hidden" name="per_page" value="{{ $perPage ?? 10 }}">
@@ -63,10 +59,9 @@
 
         {{-- Tabel Data --}}
         <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <table class="table table-bordered table-responsive-stack" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>No</th>
                         <th>ID Transaksi</th>
                         <th>Aset Terjual</th>
                         <th>Tgl Jual</th>
@@ -80,14 +75,13 @@
                 <tbody>
                     @forelse ($transaksis as $transaksi)
                         <tr>
-                            <td>{{ ($transaksis->currentPage() - 1) * $transaksis->perPage() + $loop->iteration }}</td>
-                            <td>TRX-{{ $transaksi->id }}</td>
-                            <td>{{ $transaksi->aset->nama_aset ?? 'Aset Dihapus' }}</td>
-                            <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_jual)->format('d M Y') }}</td>
-                            <td>Rp {{ number_format($transaksi->harga_jual_akhir, 0, ',', '.') }}</td>
-                            <td>{{ $transaksi->nama_pembeli }}</td>
-                            <td>{{ $transaksi->metode_pembayaran }}</td>
-                            <td>{{ $transaksi->user->name }}</td>
+                            <td data-label="ID Transaksi">TRX-{{ $transaksi->id }}</td>
+                            <td data-label="Aset Terjual">{{ $transaksi->aset->nama_aset ?? 'Aset Dihapus' }}</td>
+                            <td data-label="Tgl Jual">{{ \Carbon\Carbon::parse($transaksi->tanggal_jual)->format('d M Y') }}</td>
+                            <td data-label="Harga Akhir">Rp {{ number_format($transaksi->harga_jual_akhir, 0, ',', '.') }}</td>
+                            <td data-label="Pembeli">{{ $transaksi->nama_pembeli }}</td>
+                            <td data-label="Metode Bayar">{{ $transaksi->metode_pembayaran }}</td>
+                            <td data-label="Dicatat oleh">{{ $transaksi->user->name }}</td>
                             <td>
                                 <a href="{{ route('transaksi.show', $transaksi->id) }}" class="btn btn-info btn-circle btn-sm" title="Detail"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit"><i class="fas fa-edit"></i></a>
@@ -112,4 +106,5 @@
 
     </div>
 </div>
+
 @endsection
