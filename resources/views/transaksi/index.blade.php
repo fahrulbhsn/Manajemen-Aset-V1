@@ -1,5 +1,54 @@
 @extends('layouts.admin')
 
+@push('styles')
+{{-- Style untuk tabel responsif di layar kecil (disamakan dengan Aset) --}}
+<style>
+    /* CSS untuk membuat tabel menjadi responsif (stacking) pada layar kecil */
+    @media (max-width: 768px) {
+        .table-responsive-stack thead {
+            display: none; /* Sembunyikan header tabel di mobile */
+        }
+
+        .table-responsive-stack tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid #e3e6f0; /* Tambahkan border untuk setiap "kartu" */
+        }
+
+        .table-responsive-stack td {
+            display: block;
+            text-align: right; /* Posisikan data di kanan */
+            border: none;
+            border-bottom: 1px solid #e3e6f0;
+            position: relative;
+            padding-left: 50%; /* Beri ruang untuk label */
+            white-space: normal;
+        }
+
+        .table-responsive-stack td:last-child {
+            border-bottom: 0;
+        }
+
+        /* Buat label dari atribut data-label */
+        .table-responsive-stack td:before {
+            content: attr(data-label);
+            position: absolute;
+            left: 0;
+            width: 45%;
+            padding-left: 1rem;
+            font-weight: bold;
+            text-align: left; /* Posisikan label di kiri */
+        }
+        
+        /* Penyesuaian khusus untuk kolom aksi */
+        .td-actions {
+            text-align: center !important; /* Pusatkan tombol aksi */
+            padding-left: 1rem !important; /* Hapus padding kiri agar tombol di tengah */
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 
 {{-- Judul Halaman --}}
@@ -8,18 +57,12 @@
 
 {{-- Konten Utama --}}
 <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Daftar Transaksi</h6>
-        <div>
-            <a href="{{ route('transaksi.index') }}" class="btn btn-secondary btn-sm" title="Reset Tampilan">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </a>
-            <a href="{{ route('transaksi.create') }}" class="btn btn-primary btn-sm ml-2">
-                <i class="fas fa-plus"></i> Tambah Transaksi Baru
-            </a>
-        </div>
     </div>
     <div class="card-body">
+        
+        {{-- Pesan Sukses --}}
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
@@ -27,49 +70,64 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-        @endif
+        @endif      
+        
+        {{-- Filter, Pencarian, dan Tombol Aksi (STRUKTUR BARU SESUAI ASET) --}}
+        <div class="mb-3">
+            <form action="{{ route('transaksi.index') }}" method="GET">
+                <input type="hidden" name="tanggal_awal" value="{{ $tanggal_awal ?? '' }}">
+                <input type="hidden" name="tanggal_akhir" value="{{ $tanggal_akhir ?? '' }}">
+                
+                <div class="row align-items-center">
+                    {{-- Tombol Aksi Kiri --}}
+                    <div class="col-12 col-md-auto mb-2 mb-md-0">
+                        <a href="{{ route('transaksi.create') }}" class="btn btn-primary btn-icon-split">
+                            <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                            <span class="text">Tambah Transaksi</span>
+                        </a>
+                        <a href="{{ route('transaksi.index') }}" class="btn btn-secondary btn-circle" title="Reset Filter">
+                            <i class="fas fa-sync-alt"></i>
+                        </a>
+                    </div>
 
-        {{-- Form Opsi dan Pencarian --}}
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <form action="{{ route('transaksi.index') }}" method="GET" class="form-inline">
-                    <input type="hidden" name="search" value="{{ $search ?? '' }}">
-                    <input type="hidden" name="tanggal_awal" value="{{ $tanggal_awal ?? '' }}">
-                    <input type="hidden" name="tanggal_akhir" value="{{ $tanggal_akhir ?? '' }}">
-                    <label for="per_page" class="mr-2">Tampilkan:</label>
-                    <select name="per_page" id="per_page" class="form-control" onchange="this.form.submit()">
-                        <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
-                        <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
-                    </select>
-                </form>
-            </div>
-            <div class="col-md-4">
-                 <form action="{{ route('transaksi.index') }}" method="GET">
-                    <input type="hidden" name="per_page" value="{{ $perPage ?? 10 }}">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control" placeholder="Cari ID, Aset, Pembeli, Kasir..." value="{{ $search ?? '' }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit">Cari</button>
+                    {{-- Filter & Pencarian Kanan --}}
+                    <div class="col-12 col-md-auto ml-md-auto">
+                        <div class="d-flex justify-content-end">
+                            {{-- Filter Jumlah Data --}}
+                            <div class="form-group mb-0 mr-2" style="width: 100px;">
+                                <select name="per_page" class="form-control" onchange="this.form.submit()">
+                                    <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="50" {{ request('per_page', 10) == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ request('per_page', 10) == 100 ? 'selected' : '' }}>100</option>
+                                </select>
+                            </div>
+
+                            {{-- Input Pencarian --}}
+                            <div class="input-group" style="max-width: 300px;">
+                                <input type="text" name="search" class="form-control" placeholder="Cari ID, Aset, Pembeli..." value="{{ request('search') }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
 
         {{-- Tabel Data --}}
         <div class="table-responsive">
-            <table class="table table-bordered table-responsive-stack" id="dataTable" width="100%" cellspacing="0">
-                <thead>
+            <table class="table table-bordered table-hover table-responsive-stack" id="dataTable" width="100%" cellspacing="0">
+                <thead class="thead-light">
                     <tr>
                         <th>ID Transaksi</th>
                         <th>Aset Terjual</th>
                         <th>Tgl Jual</th>
-                        <th>Harga Akhir</th>
+                        <th class="text-right">Harga Akhir</th>
                         <th>Pembeli</th>
                         <th>Metode Bayar</th>
                         <th>Dicatat oleh</th>
-                        <th>Aksi</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,21 +136,21 @@
                             <td data-label="ID Transaksi">TRX-{{ $transaksi->id }}</td>
                             <td data-label="Aset Terjual">{{ $transaksi->aset->nama_aset ?? 'Aset Dihapus' }}</td>
                             <td data-label="Tgl Jual">{{ \Carbon\Carbon::parse($transaksi->tanggal_jual)->format('d M Y') }}</td>
-                            <td data-label="Harga Akhir">Rp {{ number_format($transaksi->harga_jual_akhir, 0, ',', '.') }}</td>
+                            <td data-label="Harga Akhir" class="text-right">Rp {{ number_format($transaksi->harga_jual_akhir, 0, ',', '.') }}</td>
                             <td data-label="Pembeli">{{ $transaksi->nama_pembeli }}</td>
                             <td data-label="Metode Bayar">{{ $transaksi->metode_pembayaran }}</td>
                             <td data-label="Dicatat oleh">{{ $transaksi->user->name }}</td>
-                            <td>
+                            <td class="text-center td-actions">
                                 <a href="{{ route('transaksi.show', $transaksi->id) }}" class="btn btn-info btn-circle btn-sm" title="Detail"><i class="fas fa-eye"></i></a>
-                                <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="btn btn-warning btn-circle btn-sm ml-2" title="Edit"><i class="fas fa-edit"></i></a>
-                                <button type="button" class="btn btn-danger btn-circle btn-sm ml-2" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('transaksi.destroy', $transaksi->id) }}">
+                                <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="btn btn-warning btn-circle btn-sm" title="Edit"><i class="fas fa-edit"></i></a>
+                                <button type="button" class="btn btn-danger btn-circle btn-sm" data-toggle="modal" data-target="#deleteModal" data-url="{{ route('transaksi.destroy', $transaksi->id) }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center">Data tidak ditemukan.</td>
+                            <td colspan="8" class="text-center">Data tidak ditemukan.</td>
                         </tr>
                     @endforelse
                 </tbody>
