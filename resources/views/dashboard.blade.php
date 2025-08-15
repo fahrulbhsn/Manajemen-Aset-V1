@@ -4,9 +4,14 @@
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-    <a href="{{ route('aset.create') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-        <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Aset Baru
-    </a>
+    <div class="d-flex flex-column flex-sm-row mt-3 mt-sm-0">
+        <a href="{{ route('aset.create') }}" class="btn btn-sm btn-primary shadow-sm mb-2 mb-sm-0 mr-sm-2">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Aset
+        </a>
+        <a href="{{ route('transaksi.create') }}" class="btn btn-sm btn-info shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Transaksi
+        </a>
+    </div>
 </div>
 
 <div class="row">

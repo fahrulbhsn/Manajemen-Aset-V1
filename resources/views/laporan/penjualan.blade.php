@@ -16,11 +16,11 @@
             <div class="form-row align-items-end">
                 <div class="form-group col-md-4">
                     <label for="tanggal_awal">Tanggal Awal</label>
-                    <input type="date" class="form-control" id="tanggal_awal" name="tanggal_awal" value="{{ $tanggal_awal ?? '' }}">
+                    <input type="date" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal') }}">
                 </div>
                 <div class="form-group col-md-4">
                     <label for="tanggal_akhir">Tanggal Akhir</label>
-                    <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" value="{{ $tanggal_akhir ?? '' }}">
+                    <input type="date" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir') }}">
                 </div>
                 <div class="form-group col-md-2">
                     <button type="submit" class="btn btn-primary btn-block">Filter</button>

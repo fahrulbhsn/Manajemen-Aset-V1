@@ -10,9 +10,10 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::where('id', '!=', auth()->id())->latest()->get();
+        $users = User::latest()->paginate(10);
+
         return view('users.index', compact('users'));
     }
 

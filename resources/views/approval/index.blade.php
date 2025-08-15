@@ -5,59 +5,44 @@
 <style>
     @media (max-width: 768px) {
         .table-responsive-stack thead {
-            display: none; /* Sembunyikan header di mobile */
+            display: none;
         }
+
         .table-responsive-stack tr {
             display: block;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             border: 1px solid #e3e6f0;
-            border-radius: .35rem;
-            box-shadow: 0 .15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            border-radius: 0.35rem;
         }
+
         .table-responsive-stack td {
-            display: block;
-            text-align: right;
-            border: none;
+            display: flex;
+            align-items: baseline;
+            padding: 0.75rem 1rem;
             border-bottom: 1px solid #e3e6f0;
-            position: relative;
-            padding: .75rem 1rem .75rem 50%;
             white-space: normal;
         }
-        .table-responsive-stack td:first-child {
-            border-top-left-radius: .35rem;
-            border-top-right-radius: .35rem;
+
+        .table-responsive-stack td:before {
+            content: attr(data-label);
+            font-weight: bold;
+            text-align: left;
+            flex-basis: 100px;
+            flex-shrink: 0;
+            margin-right: 1rem;
         }
+
+        .table-responsive-stack tr:last-child td:last-child,
         .table-responsive-stack td:last-child {
             border-bottom: 0;
         }
-        .table-responsive-stack td:before {
-            content: attr(data-label);
-            position: absolute;
-            left: 0;
-            width: 45%;
-            padding-left: 1rem;
-            font-weight: bold;
-            text-align: left;
+        
+        .table-responsive-stack .td-actions {
+            justify-content: center;
         }
-
-        .details-column ul {
-            text-align: right;
-            padding: 0;
-            margin: 0;
-        }
-        .details-column .change-item {
-            padding: .5rem 0;
-        }
-        .details-column .change-item:not(:last-child) {
-            border-bottom: 1px dashed #e3e6f0;
-        }
-        .details-column .change-label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: .25rem;
-        }
-        .details-column .change-value {
-            display: block;
+        
+        .table-responsive-stack .td-actions:before {
+           display: none;
         }
     }
 </style>

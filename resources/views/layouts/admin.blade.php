@@ -184,29 +184,38 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     @stack('scripts')
-    <script>
-        // mengingat status sidebar
-        (function() {
-            if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-                document.body.classList.add('sidebar-toggled');
-                document.querySelector('.sidebar').classList.add('toggled');
-            }
+    <script>
+        // Mengingat status sidebar
+        (function() {
+            if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
+                document.body.classList.add('sidebar-toggled');
+                document.querySelector('.sidebar').classList.add('toggled');
+            }
 
-            var sidebarToggle = document.getElementById('sidebarToggle');
-            var sidebarToggleTop = document.getElementById('sidebarToggleTop');
+            var sidebarToggle = document.getElementById('sidebarToggle');
+            var sidebarToggleTop = document.getElementById('sidebarToggleTop');
 
-            var toggleListener = function() {
-                var isToggled = document.body.classList.contains('sidebar-toggled');
-                localStorage.setItem('sb|sidebar-toggle', isToggled);
-            };
+            var toggleListener = function() {
+                var isToggled = document.body.classList.contains('sidebar-toggled');
+                localStorage.setItem('sb|sidebar-toggle', isToggled);
+            };
 
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', toggleListener);
-            }
-            if (sidebarToggleTop) {
-                sidebarToggleTop.addEventListener('click', toggleListener);
-            }
-        })();
-    </script>
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleListener);
+            }
+            if (sidebarToggleTop) {
+                sidebarToggleTop.addEventListener('click', toggleListener);
+            }
+        })();
+
+        $(document).ready(function() {
+            $('#deleteModal').on('show.bs.modal', function(event) {
+                var button = $(event.relatedTarget);
+                var url = button.data('url');
+                var modal = $(this);
+                modal.find('form#deleteForm').attr('action', url);
+            });
+        });
+    </script>
 </body>
 </html>
