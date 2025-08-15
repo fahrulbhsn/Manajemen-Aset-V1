@@ -1,30 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+   <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Manajemen Aset</title>
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
-        <head>
-            <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-            <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-            <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
-            <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
-        </head>
+    <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+         @stack('styles')
+        <style>
+            .sidebar-brand-icon img {
+            border-radius: 50%;
+            object-fit: cover;}
+        </style>
 </head>
 <body id="page-top">
     <div id="wrapper">
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             {{-- Isi sidebar --}}
-            <style>
-                .sidebar-brand-icon img {
-                border-radius: 50%;
-                object-fit: cover;}
-            </style>
                 <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
                     <div class="sidebar-brand-icon">
                         <img src="{{ asset('img/logo.png') }}" alt="Gigih Com" width="40" height="40">
@@ -187,19 +183,30 @@
     <script src="{{ asset('js/sb-admin-2.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
-    {{-- script dari halaman lain --}}
     @stack('scripts')
-
     <script>
-    // konfirmasi hapus
-    $('#deleteModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Tombol yang memicu modal
-        var url = button.data('url'); // Ambil URL dari atribut data-url
+        // mengingat status sidebar
+        (function() {
+            if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
+                document.body.classList.add('sidebar-toggled');
+                document.querySelector('.sidebar').classList.add('toggled');
+            }
 
-        var form = $(this).find('form#deleteForm'); // Cari form di dalam modal
-        form.attr('action', url); // Set action form dengan URL yang benar
-    });
+            var sidebarToggle = document.getElementById('sidebarToggle');
+            var sidebarToggleTop = document.getElementById('sidebarToggleTop');
+
+            var toggleListener = function() {
+                var isToggled = document.body.classList.contains('sidebar-toggled');
+                localStorage.setItem('sb|sidebar-toggle', isToggled);
+            };
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleListener);
+            }
+            if (sidebarToggleTop) {
+                sidebarToggleTop.addEventListener('click', toggleListener);
+            }
+        })();
     </script>
-
 </body>
 </html>
