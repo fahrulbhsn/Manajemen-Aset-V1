@@ -125,7 +125,13 @@ class AsetController extends Controller
             'harga_jual' => 'required|integer',
             'detail' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
-        ]);
+        ],
+        [
+            'foto.max' => 'Ukuran file foto tidak boleh lebih dari 2 MB.',
+            'foto.image' => 'File yang diunggah harus berupa gambar.',
+            'foto.mimes' => 'Format foto harus jpeg, png, jpg, atau gif.',
+        ]
+    );
 
         $data = $request->all();
 
@@ -181,7 +187,13 @@ class AsetController extends Controller
             'harga_jual' => 'required|integer',
             'detail' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        ],
+        [
+            'foto.max' => 'Ukuran file foto tidak boleh lebih dari 2 MB.',
+            'foto.image' => 'File yang diunggah harus berupa gambar.',
+            'foto.mimes' => 'Format foto harus jpeg, png, jpg, atau gif.',
+        ]
+    );
 
         // Cek pengguna
         if (Auth::user()->role == 'admin') {

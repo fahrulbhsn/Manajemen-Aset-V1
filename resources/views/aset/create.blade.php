@@ -62,6 +62,11 @@
             <div class="form-group">
                 <label for="foto">Foto Aset</label>
                 <input type="file" class="form-control-file" id="foto" name="foto">
+                    @error('foto')
+                        <div class="text-danger mt-2">
+                            {{ $message }}
+                        </div>
+                    @enderror
             </div>
 
             <button type="submit" class="btn btn-primary">Simpan Aset</button>

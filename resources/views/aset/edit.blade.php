@@ -56,16 +56,19 @@
                 <textarea class="form-control" id="detail" name="detail" rows="3">{{ old('detail', $aset->detail) }}</textarea>
             </div>
             
-            {{-- KODE BARU UNTUK FOTO ASET DIMULAI DI SINI --}}
             <div class="form-group">
                 <label for="foto">Foto Aset</label>
                 <input type="file" class="form-control-file" id="foto" name="foto">
+                    @error('foto')
+                    <div class="text-danger mt-2">
+                        {{ $message }}
+                    </div>
+                    @enderror
                 @if($aset->foto)
                     <small class="form-text text-muted">Foto saat ini:</small>
                     <img src="{{ asset('foto_aset/' . $aset->foto) }}" alt="{{ $aset->nama_aset }}" width="100" class="mt-2">
                 @endif
             </div>
-            {{-- KODE BARU UNTUK FOTO ASET BERAKHIR DI SINI --}}
 
             <button type="submit" class="btn btn-primary">Update Aset</button>
         </form>
