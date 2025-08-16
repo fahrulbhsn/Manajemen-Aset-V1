@@ -35,6 +35,8 @@
                                 <h1 class="h4 text-gray-900 mb-4">Manajemen Aset Gigih Computer</h1>
                             </div>
                             <x-auth-session-status class="mb-4" :status="session('status')" />
+                            <x-input-error :messages="$errors->get('email')" class="alert alert-danger" />
+                            <x-auth-session-status class="mb-4" :status="session('status')" />
                             <form class="user" method="POST" action="{{ route('login') }}">
                                 @csrf
                                 <div class="form-group">

@@ -25,7 +25,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        try {
         $request->authenticate();
+        } catch (ValidationException $e) {
+            throw ValidationException::withMessages([
+                'email' => __('Email atau Password yang Anda masukkan salah.'),
+            ]);
+        }
 
         if (! $request->user()->is_active) {
             Auth::logout();
