@@ -1,27 +1,26 @@
 @extends('layouts.admin')
 
 @push('styles')
-{{-- Style untuk tabel responsif di layar kecil --}}
+{{-- CSS Style tabel responsif--}}
 <style>
-    /* CSS untuk membuat tabel menjadi responsif (stacking) pada layar kecil */
     @media (max-width: 768px) {
         .table-responsive-stack thead {
-            display: none; /* Sembunyikan header tabel di mobile */
+            display: none;
         }
 
         .table-responsive-stack tr {
             display: block;
             margin-bottom: 1rem;
-            border: 1px solid #e3e6f0; /* Tambahkan border untuk setiap "kartu" */
+            border: 1px solid #e3e6f0;
         }
 
         .table-responsive-stack td {
             display: block;
-            text-align: right; /* Posisikan data di kanan */
+            text-align: right;
             border: none;
             border-bottom: 1px solid #e3e6f0;
             position: relative;
-            padding-left: 50%; /* Beri ruang untuk label */
+            padding-left: 50%;
             white-space: normal;
         }
 
@@ -29,7 +28,6 @@
             border-bottom: 0;
         }
 
-        /* Buat label dari atribut data-label */
         .table-responsive-stack td:before {
             content: attr(data-label);
             position: absolute;
@@ -37,13 +35,12 @@
             width: 45%;
             padding-left: 1rem;
             font-weight: bold;
-            text-align: left; /* Posisikan label di kiri */
+            text-align: left;
         }
         
-        /* Penyesuaian khusus untuk kolom aksi */
         .td-actions {
-            text-align: center !important; /* Pusatkan tombol aksi */
-            padding-left: 1rem !important; /* Hapus padding kiri agar tombol di tengah */
+            text-align: center !important;
+            padding-left: 1rem !important;
         }
     }
 </style>
@@ -82,7 +79,6 @@
                 <input type="hidden" name="status_name" value="{{ request('status_name') }}">
                 
                 <div class="row align-items-center">
-                    {{-- Tombol Aksi Kiri --}}
                     <div class="col-12 col-md-auto mb-2 mb-md-0">
                         <a href="{{ route('aset.create') }}" class="btn btn-primary btn-icon-split">
                             <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
@@ -129,7 +125,8 @@
                         <th>Nama Aset</th>
                         <th>Kategori</th>
                         <th class="text-center">Status</th>
-                        <th class="text-center">Tanggal Update</th>
+                        <th class="text-center">Tanggal Beli</th>
+                   {{-- <th class="text-center">Tanggal Update</th> --}}
                         <th class="text-right">Harga Jual</th>
                         <th class="text-center">Aksi</th>
                     </tr>
@@ -156,7 +153,8 @@
                                     <span class="badge badge-danger">{{ $aset->status->name }}</span>
                                 @endif
                             </td>
-                            <td data-label="Tgl Update" class="text-center">{{ $aset->tanggal_update ? \Carbon\Carbon::parse($aset->tanggal_update)->format('d M Y') : '-' }}</td>
+                            <td data-label="Tgl Beli" class="text-center">{{ \Carbon\Carbon::parse($aset->tanggal_beli)->format('d M Y') }}</td>
+                        {{--<td data-label="Tgl Update" class="text-center">{{ $aset->tanggal_update ? \Carbon\Carbon::parse($aset->tanggal_update)->format('d M Y') : '-' }}</td> --}}
                             <td data-label="Harga Jual" class="text-right">Rp {{ number_format($aset->harga_jual, 0, ',', '.') }}</td>
                             <td class="text-center td-actions">
                                 <a href="{{ route('aset.show', $aset->id) }}" class="btn btn-info btn-circle btn-sm" title="Detail"><i class="fas fa-eye"></i></a>

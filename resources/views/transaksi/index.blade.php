@@ -1,27 +1,26 @@
 @extends('layouts.admin')
 
 @push('styles')
-{{-- Style untuk tabel responsif di layar kecil (disamakan dengan Aset) --}}
+{{-- Style untuk tabel responsif --}}
 <style>
-    /* CSS untuk membuat tabel menjadi responsif (stacking) pada layar kecil */
     @media (max-width: 768px) {
         .table-responsive-stack thead {
-            display: none; /* Sembunyikan header tabel di mobile */
+            display: none;
         }
 
         .table-responsive-stack tr {
             display: block;
             margin-bottom: 1rem;
-            border: 1px solid #e3e6f0; /* Tambahkan border untuk setiap "kartu" */
+            border: 1px solid #e3e6f0;
         }
 
         .table-responsive-stack td {
             display: block;
-            text-align: right; /* Posisikan data di kanan */
+            text-align: right; 
             border: none;
             border-bottom: 1px solid #e3e6f0;
             position: relative;
-            padding-left: 50%; /* Beri ruang untuk label */
+            padding-left: 50%;
             white-space: normal;
         }
 
@@ -29,7 +28,6 @@
             border-bottom: 0;
         }
 
-        /* Buat label dari atribut data-label */
         .table-responsive-stack td:before {
             content: attr(data-label);
             position: absolute;
@@ -37,13 +35,12 @@
             width: 45%;
             padding-left: 1rem;
             font-weight: bold;
-            text-align: left; /* Posisikan label di kiri */
+            text-align: left;
         }
         
-        /* Penyesuaian khusus untuk kolom aksi */
         .td-actions {
-            text-align: center !important; /* Pusatkan tombol aksi */
-            padding-left: 1rem !important; /* Hapus padding kiri agar tombol di tengah */
+            text-align: center !important;
+            padding-left: 1rem !important;
         }
     }
 </style>
@@ -72,7 +69,7 @@
             </div>
         @endif      
         
-        {{-- Filter, Pencarian, dan Tombol Aksi (STRUKTUR BARU SESUAI ASET) --}}
+        {{-- Filter, Pencarian, dan Tombol Aksi--}}
         <div class="mb-3">
             <form action="{{ route('transaksi.index') }}" method="GET">
                 <input type="hidden" name="tanggal_awal" value="{{ $tanggal_awal ?? '' }}">
@@ -125,7 +122,7 @@
                         <th>Tgl Jual</th>
                         <th class="text-right">Harga Akhir</th>
                         <th>Pembeli</th>
-                        <th>Metode Bayar</th>
+                    {{--<th>Metode Bayar</th>--}}
                         <th>Dicatat oleh</th>
                         <th class="text-center">Aksi</th>
                     </tr>
@@ -138,7 +135,7 @@
                             <td data-label="Tgl Jual">{{ \Carbon\Carbon::parse($transaksi->tanggal_jual)->format('d M Y') }}</td>
                             <td data-label="Harga Akhir" class="text-right">Rp {{ number_format($transaksi->harga_jual_akhir, 0, ',', '.') }}</td>
                             <td data-label="Pembeli">{{ $transaksi->nama_pembeli }}</td>
-                            <td data-label="Metode Bayar">{{ $transaksi->metode_pembayaran }}</td>
+                        {{--<td data-label="Metode Bayar">{{ $transaksi->metode_pembayaran }}</td>--}}
                             <td data-label="Dicatat oleh">{{ $transaksi->user->name }}</td>
                             <td class="text-center td-actions">
                                 <a href="{{ route('transaksi.show', $transaksi->id) }}" class="btn btn-info btn-circle btn-sm" title="Detail"><i class="fas fa-eye"></i></a>
