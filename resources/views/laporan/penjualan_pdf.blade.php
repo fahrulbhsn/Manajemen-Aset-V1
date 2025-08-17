@@ -15,7 +15,7 @@
 <body>
     <h1>Laporan Penjualan</h1>
     @if($tanggal_awal && $tanggal_akhir)
-        <p>Periode: {{ \Carbon\Carbon::parse($tanggal_awal)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggal_akhir)->format('d M Y') }}</p>
+        <p>Periode: {{ \Carbon\Carbon::parse($tanggal_awal)->locale('id')->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($tanggal_akhir)->locale('id')->translatedFormat('d F Y') }}</p>
     @else
         <p>Periode: Keseluruhan</p>
     @endif
