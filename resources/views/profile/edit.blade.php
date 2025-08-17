@@ -7,18 +7,16 @@
 
 <div class="row">
     <div class="col-lg-8">
-        {{-- Kartu untuk Update Informasi Profil --}}
+        {{-- Update Informasi Profil --}}
         <div class="card shadow mb-4">
             <div class="card-body">
-                {{-- Memuat formulir informasi profil yang sudah disempurnakan --}}
                 @include('profile.partials.update-profile-information-form')
             </div>
         </div>
 
-        {{-- Kartu untuk Update Password --}}
+        {{-- Update Password --}}
         <div class="card shadow mb-4">
             <div class="card-body">
-                {{-- Memuat formulir password yang sudah disempurnakan --}}
                 @include('profile.partials.update-password-form')
             </div>
         </div>
