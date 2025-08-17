@@ -120,7 +120,7 @@
             <table class="table table-bordered table-hover table-responsive-stack" id="dataTable" width="100%" cellspacing="0">
                 <thead class="thead-light">
                     <tr>
-                        <th class="text-center">No</th>
+                    {{--<th class="text-center">No</th>--}}
                         <th class="text-center">Foto</th>
                         <th>Nama Aset</th>
                         <th>Kategori</th>
@@ -134,7 +134,7 @@
                 <tbody>
                     @forelse ($asets as $aset)
                         <tr>
-                            <td data-label="No" class="text-center">{{ ($asets->currentPage() - 1) * $asets->perPage() + $loop->iteration }}</td>
+                        {{--<td data-label="No" class="text-center">{{ ($asets->currentPage() - 1) * $asets->perPage() + $loop->iteration }}</td>--}}
                             <td data-label="Foto" class="text-center">
                                 @if($aset->foto)
                                     <img src="{{ asset('foto_aset/' . $aset->foto) }}" alt="{{ $aset->nama_aset }}" width="80" style="object-fit: cover; border-radius: 5px;">
