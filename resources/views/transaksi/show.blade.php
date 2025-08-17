@@ -9,7 +9,6 @@
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">Rincian Transaksi</h6>
         <div>
-            {{-- TOMBOL BARU UNTUK CETAK STRUK --}}
             <a href="{{ route('transaksi.cetak_struk', $transaksi->id) }}" class="btn btn-success btn-sm" target="_blank">
                 <i class="fas fa-print"></i> Cetak Struk
             </a>
@@ -27,7 +26,6 @@
                     </tr>
                     <tr>
                         <th>Tanggal Jual</th>
-                        {{-- Memastikan tanggal jual ada sebelum memformatnya --}}
                         <td>{{ $transaksi->tanggal_jual ? \Carbon\Carbon::parse($transaksi->tanggal_jual)->format('d F Y') : '-' }}</td>
                     </tr>
                     <tr>
@@ -40,7 +38,6 @@
                     </tr>
                     <tr>
                         <th>Dicatat oleh</th>
-                        {{-- Menggunakan null coalescing operator untuk user name --}}
                         <td>{{ $transaksi->user->name ?? 'Pengguna Tidak Ditemukan' }}</td>
                     </tr>
                 </table>
@@ -58,7 +55,6 @@
                     </tr>
                     <tr>
                         <th>Aset yang Dibeli</th>
-                        {{-- Menggunakan null coalescing operator untuk nama aset --}}
                         <td>{{ $transaksi->aset->nama_aset ?? 'Aset Telah Dihapus' }}</td>
                     </tr>
                     <tr>

@@ -1,11 +1,11 @@
-/* Custom CSS for Responsive Stack Table (Versi Profesional) */
+/* Custom CSS for Responsive Stack Table */
 @media (max-width: 768px) {
   .table-responsive-stack {
     display: block;
     width: 100%;
   }
   .table-responsive-stack thead {
-    display: none; /* Sembunyikan header tabel di mobile */
+    display: none;
   }
   .table-responsive-stack tr {
     display: flex;
@@ -25,20 +25,38 @@
     border-bottom: 1px solid #f8f9fc;
   }
   .table-responsive-stack td:last-child {
-    border-bottom: none; /* Hapus border untuk item terakhir */
+    border-bottom: none;
   }
   .table-responsive-stack td::before {
-    content: attr(data-label); /* Ambil teks dari atribut data-label */
+    content: attr(data-label);
     font-weight: bold;
     margin-right: 1rem;
     text-align: left;
-    flex-shrink: 0; /* Mencegah label mengecil */
+    flex-shrink: 0;
   }
-  /* Atur agar tombol aksi tetap rapi */
   .table-responsive-stack td[data-label="Aksi"] {
       justify-content: flex-start;
   }
   .table-responsive-stack td[data-label="Aksi"] .btn {
-      margin-bottom: 5px; /* Memberi jarak jika tombol lebih dari satu */
+      margin-bottom: 5px;
+  }
+  .sidebar {
+    transition: width 0.3s ease;
+  }
+
+  #content-wrapper {
+    transition: margin-left 0.3s ease;
+  }
+
+  @media (min-width: 768px) {
+      .sidebar.toggled .nav-item .nav-link span,
+      .sidebar.toggled .sidebar-heading,
+      .sidebar.toggled .sidebar-brand-text {
+        display: none;
+      }
+
+  .sidebar.toggled .nav-item .nav-link {
+    justify-content: center;
+    }
   }
 }

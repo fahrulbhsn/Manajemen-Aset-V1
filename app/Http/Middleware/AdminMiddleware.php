@@ -18,11 +18,9 @@ class AdminMiddleware
     {
         // Cek apakah pengguna sudah login DAN memiliki peran 'admin'
         if (Auth::check() && Auth::user()->role == 'admin') {
-            // Jika ya, izinkan untuk melanjutkan
             return $next($request);
         }
 
-        // Jika tidak, kembalikan ke halaman dashboard dengan pesan error
         return redirect('/dashboard')->with('error', 'Anda tidak memiliki hak akses!');
     }
 }

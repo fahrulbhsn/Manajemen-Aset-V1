@@ -184,29 +184,37 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     @stack('scripts')
-    <script>
-        // Mengingat status sidebar
-        (function() {
-            if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-                document.body.classList.add('sidebar-toggled');
-                document.querySelector('.sidebar').classList.add('toggled');
-            }
+    <script>
+        // Local Storage untuk Sidebar Toggle
+        (function() {
+            const body = document.body;
+            const sidebar = document.querySelector('.sidebar');
+            const storageKey = 'sb|sidebar-toggle';
 
-            var sidebarToggle = document.getElementById('sidebarToggle');
-            var sidebarToggleTop = document.getElementById('sidebarToggleTop');
+            document.addEventListener('DOMContentLoaded', function() {
+                if (localStorage.getItem(storageKey) === 'true') {
+                    if (sidebar) {
+                        body.classList.add('sidebar-toggled');
+                        sidebar.classList.add('toggled');
+                    }
+                }
+            });
 
-            var toggleListener = function() {
-                var isToggled = document.body.classList.contains('sidebar-toggled');
-                localStorage.setItem('sb|sidebar-toggle', isToggled);
-            };
+            const sidebarTogglers = document.querySelectorAll('#sidebarToggle, #sidebarToggleTop');
 
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', toggleListener);
-            }
-            if (sidebarToggleTop) {
-                sidebarToggleTop.addEventListener('click', toggleListener);
-            }
-        })();
+            const toggleListener = function() {
+                setTimeout(function() {
+                    const isToggled = body.classList.contains('sidebar-toggled');
+                    localStorage.setItem(storageKey, isToggled);
+                }, 10);
+            };
+
+            sidebarTogglers.forEach(function(toggler) {
+                if (toggler) {
+                    toggler.addEventListener('click', toggleListener);
+                }
+            });
+        })();
 
         $(document).ready(function() {
             $('#deleteModal').on('show.bs.modal', function(event) {

@@ -4,8 +4,11 @@
 <h1 class="h3 mb-4 text-gray-800">Edit Transaksi (TRX-{{ $transaksi->id }})</h1>
 
 <div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Aset: {{ $transaksi->aset->nama_aset ?? 'Aset Dihapus' }}</h6>
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Aset: {{ $transaksi->aset->nama_aset ?? 'Aset Dihapus' }}</h6>    
+        <div>
+            <a href="{{ route('transaksi.index') }}" class="btn btn-secondary btn-sm">Kembali</a>
+        </div>
     </div>
     <div class="card-body">
         <form action="{{ route('transaksi.update', $transaksi->id) }}" method="POST">
